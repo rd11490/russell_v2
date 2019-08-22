@@ -3,7 +3,7 @@ import argparse
 from src.utils.client import smart
 from src.utils.storage import *
 from src.utils.utils import *
-
+from src.utils.arg_parser import *
 
 def download_box_scores(season, season_type):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}'".format(season, season_type)
@@ -46,12 +46,11 @@ def download_box_score(game_id):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Download season stats')
-    parser.add_argument('-s', '--season', action="store", dest='season', help='The season you are trying to download')
-    parser.add_argument('-st', '--season_type', action="store", dest='season_type',
-                        help='The season type you are trying to download')
-    parser.add_argument('-g', '--game_id', action="store", dest='game_id',
-                        help='The game id of the game you are trying to download')
+    season_arg(parser)
+    season_type_arg(parser)
+    game_id_arg(parser)
     args = parser.parse_args()
+
     if args.game_id is None:
         download_box_scores(args.season, args.season_type)
     else:

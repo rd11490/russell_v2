@@ -6,6 +6,63 @@ import requests
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
+class NBATeams:
+    AtlantaHawks = '1610612737'
+    BostonCeltics = '1610612738'
+    BrooklynNets = '1610612751'
+    CharlotteHornets = '1610612766'
+    ChicagoBulls = '1610612741'
+    ClevelandCavaliers = '1610612739'
+    DallasMavericks = '1610612742'
+    DenverNuggets = '1610612743'
+    DetroitPistons = '1610612765'
+    GoldenStateWarriors = '1610612744'
+    HoustonRockets = '1610612745'
+    IndianaPacers = '1610612754'
+    LosAngelesClippers = '1610612746'
+    LosAngelesLakers = '1610612747'
+    MemphisGrizzlies = '1610612763'
+    MiamiHeat = '1610612748'
+    MilwaukeeBucks = '1610612749'
+    MinnesotaTimberwolves = '1610612750'
+    NewOrleansPelicans = '1610612740'
+    NewYorkKnicks = '1610612752'
+    OklahomaCityThunder = '1610612760'
+    OrlandoMagic = '1610612753'
+    Philadelphia76ers = '1610612755'
+    PhoenixSuns = '1610612756'
+    PortlandTrailBlazers = '1610612757'
+    SacramentoKings = '1610612758'
+    SanAntonioSpurs = '1610612759'
+    TorontoRaptors = '1610612761'
+    UtahJazz = '1610612762'
+    WashingtonWizards = '1610612764'
+
+
+class PerMode:
+    Totals = 'Totals'
+    PerGame = 'PerGame'
+    Per100 = 'Per100Possessions'
+    Per36 = 'Per36'
+    Default = Totals
+
+
+class SeasonType:
+    RegularSeason = 'Regular Season'
+    Playoffs = 'Playoffs'
+    Preseason = 'Pre Season'
+    Default = RegularSeason
+
+
+class MeasureType:
+    Base = 'Base'
+    Advanced = 'Advanced'
+    Misc = 'Misc'
+    Scoring = 'Scoring'
+    Usage = 'Usage'
+    Defense = 'Defense'
+    FourFactors = 'Four Factors'
+    Default = Base
 
 class Smart:
     def __init__(self):
@@ -21,7 +78,6 @@ class Smart:
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
         }
         self.default_league = '00'
-        self.default_season_type = 'Regular Season'
         self.default_season = self.__current_season()
         self.base_url = 'https://stats.nba.com/stats/'
 
@@ -35,6 +91,91 @@ class Smart:
             year = datetime.datetime.now().year
             last_year = year - 1
             return str(last_year) + '-' + str(year)[2:]
+
+    def team_season_totals(self, per_mode=PerMode.Default, season=None, season_type=SeasonType.Default,
+                           measure_type=MeasureType.Default):
+        if season is None:
+            season = self.default_season
+        params = (
+            ('Conference', ''),
+            ('DateFrom', ''),
+            ('DateTo', ''),
+            ('Division', ''),
+            ('GameScope', ''),
+            ('GameSegment', ''),
+            ('LastNGames', '0'),
+            ('LeagueID', '00'),
+            ('Location', ''),
+            ('MeasureType', measure_type),
+            ('Month', '0'),
+            ('OpponentTeamID', '0'),
+            ('Outcome', ''),
+            ('PORound', '0'),
+            ('PaceAdjust', 'N'),
+            ('PerMode', per_mode),
+            ('Period', '0'),
+            ('PlayerExperience', ''),
+            ('PlayerPosition', ''),
+            ('PlusMinus', 'N'),
+            ('Rank', 'N'),
+            ('Season', season),
+            ('SeasonSegment', ''),
+            ('SeasonType', season_type),
+            ('ShotClockRange', ''),
+            ('StarterBench', ''),
+            ('TeamID', '0'),
+            ('TwoWay', '0'),
+            ('VsConference', ''),
+            ('VsDivision', ''),
+        )
+
+        return self.api_call('leaguedashteamstats', params=params)
+
+    def player_season_totals(self, per_mode=PerMode.Default, season=None, season_type=SeasonType.Default,
+                             measure_type=MeasureType.Default):
+        if season is None:
+            season = self.default_season
+
+        params = (
+            ('College', ''),
+            ('Conference', ''),
+            ('Country', ''),
+            ('DateFrom', ''),
+            ('DateTo', ''),
+            ('Division', ''),
+            ('DraftPick', ''),
+            ('DraftYear', ''),
+            ('GameScope', ''),
+            ('GameSegment', ''),
+            ('Height', ''),
+            ('LastNGames', '0'),
+            ('LeagueID', '00'),
+            ('Location', ''),
+            ('MeasureType', measure_type),
+            ('Month', '0'),
+            ('OpponentTeamID', '0'),
+            ('Outcome', ''),
+            ('PORound', '0'),
+            ('PaceAdjust', 'N'),
+            ('PerMode', per_mode),
+            ('Period', '0'),
+            ('PlayerExperience', ''),
+            ('PlayerPosition', ''),
+            ('PlusMinus', 'N'),
+            ('Rank', 'N'),
+            ('Season', season),
+            ('SeasonSegment', ''),
+            ('SeasonType', season_type),
+            ('ShotClockRange', ''),
+            ('StarterBench', ''),
+            ('TeamID', '0'),
+            ('TwoWay', '0'),
+            ('VsConference', ''),
+            ('VsDivision', ''),
+            ('Weight', '')
+        )
+
+        return self.api_call('leaguedashplayerstats', params=params)['LeagueDashPlayerStats']
 
     def get_box_score_traditional(self, game_id=None, start_period=None, end_period=None, start_range=None,
                                   end_range=None, range_type=None):
@@ -62,11 +203,15 @@ class Smart:
 
         return self.api_call('boxscoretraditionalv2', params=params)
 
-    def get_player_game_log(self, season_type=None, season=None, league_id=None, date_to=None, date_from=None):
-        return self.__get_league_game_log(player_or_team='P')
+    def get_player_game_log(self, season_type=SeasonType.Default, season=None, league_id=None, date_to=None,
+                            date_from=None):
+        return self.__get_league_game_log(player_or_team='P', season_type=season_type, season=season,
+                                          league_id=league_id, date_to=date_to, date_from=date_from)
 
-    def get_teams_game_log(self, season_type=None, season=None, league_id=None, date_to=None, date_from=None):
-        return self.__get_league_game_log(player_or_team='T')
+    def get_teams_game_log(self, season_type=SeasonType.Default, season=None, league_id=None, date_to=None,
+                           date_from=None):
+        return self.__get_league_game_log(player_or_team='T', season_type=season_type, season=season,
+                                          league_id=league_id, date_to=date_to, date_from=date_from)
 
     def get_play_by_play(self, game_id=None, start_period=None, end_period=None):
         if game_id is None:
@@ -84,12 +229,11 @@ class Smart:
 
         return self.api_call('playbyplayv2', params=params)
 
-    def __get_league_game_log(self, player_or_team=None, season_type=None, season=None, league_id=None, date_to=None,
+    def __get_league_game_log(self, player_or_team=None, season_type=SeasonType.Default, season=None, league_id=None,
+                              date_to=None,
                               date_from=None):
         if player_or_team is None:
             raise ValueError("Must provide a Team Id")
-        if season_type is None:
-            season_type = self.default_season_type
         if season is None:
             season = self.default_season
         if league_id is None:
@@ -117,8 +261,6 @@ class Smart:
                           date_from=None):
         if team_id is None:
             raise ValueError("Must provide a Team Id")
-        if season_type is None:
-            season_type = self.default_season_type
         if season is None:
             season = self.default_season
         if league_id is None:
@@ -158,39 +300,6 @@ class Smart:
             frame.columns = s['headers']
             results[s['name']] = frame
         return results
-
-
-class NBATeams:
-    AtlantaHawks = '1610612737'
-    BostonCeltics = '1610612738'
-    BrooklynNets = '1610612751'
-    CharlotteHornets = '1610612766'
-    ChicagoBulls = '1610612741'
-    ClevelandCavaliers = '1610612739'
-    DallasMavericks = '1610612742'
-    DenverNuggets = '1610612743'
-    DetroitPistons = '1610612765'
-    GoldenStateWarriors = '1610612744'
-    HoustonRockets = '1610612745'
-    IndianaPacers = '1610612754'
-    LosAngelesClippers = '1610612746'
-    LosAngelesLakers = '1610612747'
-    MemphisGrizzlies = '1610612763'
-    MiamiHeat = '1610612748'
-    MilwaukeeBucks = '1610612749'
-    MinnesotaTimberwolves = '1610612750'
-    NewOrleansPelicans = '1610612740'
-    NewYorkKnicks = '1610612752'
-    OklahomaCityThunder = '1610612760'
-    OrlandoMagic = '1610612753'
-    Philadelphia76ers = '1610612755'
-    PhoenixSuns = '1610612756'
-    PortlandTrailBlazers = '1610612757'
-    SacramentoKings = '1610612758'
-    SanAntonioSpurs = '1610612759'
-    TorontoRaptors = '1610612761'
-    UtahJazz = '1610612762'
-    WashingtonWizards = '1610612764'
 
 
 smart = Smart()
