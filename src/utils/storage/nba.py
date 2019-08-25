@@ -1,6 +1,4 @@
-import sqlalchemy
-
-from sqlalchemy import Column, Integer, VARCHAR, Float, Boolean, Text
+from sqlalchemy import Column, Integer, VARCHAR, Float, Text
 from sqlalchemy import MetaData
 from sqlalchemy import Table
 
@@ -184,5 +182,163 @@ player_season_totals_advanced = Table(
     Column('FG_PCT', Float),
     Column('SEASON', VARCHAR(255), primary_key=True),
     Column('SEASON_TYPE', VARCHAR(255), primary_key=True)
-
 )
+
+player_tracking_drives = Table(
+    'player_tracking_drives',
+    meta,
+    Column('PLAYER_ID', VARCHAR(255), primary_key=True),
+    Column('PLAYER_NAME', VARCHAR(255)),
+    Column('TEAM_ID', VARCHAR(255)),
+    Column('TEAM_ABBREVIATION', VARCHAR(255)),
+    Column('GP', Float),
+    Column('W', Float),
+    Column('L', Float),
+    Column('MIN', Float),
+    Column('DRIVES', Float),
+    Column('DRIVE_FGM', Float),
+    Column('DRIVE_FGA', Float),
+    Column('DRIVE_FG_PCT', Float),
+    Column('DRIVE_FTM', Float),
+    Column('DRIVE_FTA', Float),
+    Column('DRIVE_FT_PCT', Float),
+    Column('DRIVE_PTS', Float),
+    Column('DRIVE_PTS_PCT', Float),
+    Column('DRIVE_PASSES', Float),
+    Column('DRIVE_PASSES_PCT', Float),
+    Column('DRIVE_AST', Float),
+    Column('DRIVE_AST_PCT', Float),
+    Column('DRIVE_TOV', Float),
+    Column('DRIVE_TOV_PCT', Float),
+    Column('DRIVE_PF', Float),
+    Column('DRIVE_PF_PCT', Float),
+    Column('SEASON', VARCHAR(255), primary_key=True),
+    Column('SEASON_TYPE', VARCHAR(255), primary_key=True)
+)
+
+player_tracking_defense = Table(
+    'player_tracking_defense',
+    meta,
+    Column('PLAYER_ID', VARCHAR(255), primary_key=True),
+    Column('PLAYER_NAME', VARCHAR(255)),
+    Column('TEAM_ID', VARCHAR(255)),
+    Column('TEAM_ABBREVIATION', VARCHAR(255)),
+    Column('GP', Float),
+    Column('W', Float),
+    Column('L', Float),
+    Column('MIN', Float),
+    Column('STL', Float),
+    Column('BLK', Float),
+    Column('DREB', Float),
+    Column('DEF_RIM_FGM', Float),
+    Column('DEF_RIM_FGA', Float),
+    Column('DEF_RIM_FG_PCT', Float),
+    Column('SEASON', VARCHAR(255), primary_key=True),
+    Column('SEASON_TYPE', VARCHAR(255), primary_key=True)
+)
+
+player_tracking_catch_and_shoot = Table(
+    'player_tracking_catch_and_shoot',
+    meta,
+    Column('PLAYER_ID', VARCHAR(255), primary_key=True),
+    Column('PLAYER_NAME', VARCHAR(255)),
+    Column('TEAM_ID', VARCHAR(255)),
+    Column('TEAM_ABBREVIATION', VARCHAR(255)),
+    Column('GP', Float),
+    Column('W', Float),
+    Column('L', Float),
+    Column('MIN', Float),
+    Column('CATCH_SHOOT_FGM', Float),
+    Column('CATCH_SHOOT_FGA', Float),
+    Column('CATCH_SHOOT_FG_PCT', Float),
+    Column('CATCH_SHOOT_PTS', Float),
+    Column('CATCH_SHOOT_FG3M', Float),
+    Column('CATCH_SHOOT_FG3A', Float),
+    Column('CATCH_SHOOT_FG3_PCT', Float),
+    Column('CATCH_SHOOT_EFG_PCT', Float),
+    Column('SEASON', VARCHAR(255), primary_key=True),
+    Column('SEASON_TYPE', VARCHAR(255), primary_key=True)
+)
+
+player_tracking_passing = Table(
+    'player_tracking_passing',
+    meta,
+    Column('PLAYER_ID', VARCHAR(255), primary_key=True),
+    Column('PLAYER_NAME', VARCHAR(255)),
+    Column('TEAM_ID', VARCHAR(255)),
+    Column('TEAM_ABBREVIATION', VARCHAR(255)),
+    Column('GP', Float),
+    Column('W', Float),
+    Column('L', Float),
+    Column('MIN', Float),
+    Column('PASSES_MADE', Float),
+    Column('PASSES_RECEIVED', Float),
+    Column('AST', Float),
+    Column('FT_AST', Float),
+    Column('SECONDARY_AST', Float),
+    Column('POTENTIAL_AST', Float),
+    Column('AST_PTS_CREATED', Float),
+    Column('AST_ADJ', Float),
+    Column('AST_TO_PASS_PCT', Float),
+    Column('AST_TO_PASS_PCT_ADJ', Float),
+    Column('SEASON', VARCHAR(255), primary_key=True),
+    Column('SEASON_TYPE', VARCHAR(255), primary_key=True)
+)
+
+player_tracking_touches = Table(
+    'player_tracking_touches',
+    meta,
+    Column('PLAYER_ID', VARCHAR(255), primary_key=True),
+    Column('PLAYER_NAME', VARCHAR(255)),
+    Column('TEAM_ID', VARCHAR(255)),
+    Column('TEAM_ABBREVIATION', VARCHAR(255)),
+    Column('GP', Float),
+    Column('W', Float),
+    Column('L', Float),
+    Column('MIN', Float),
+    Column('POINTS', Float),
+    Column('TOUCHES', Float),
+    Column('FRONT_CT_TOUCHES', Float),
+    Column('TIME_OF_POSS', Float),
+    Column('AVG_SEC_PER_TOUCH', Float),
+    Column('AVG_DRIB_PER_TOUCH', Float),
+    Column('PTS_PER_TOUCH', Float),
+    Column('ELBOW_TOUCHES', Float),
+    Column('POST_TOUCHES', Float),
+    Column('PAINT_TOUCHES', Float),
+    Column('PTS_PER_ELBOW_TOUCH', Float),
+    Column('PTS_PER_POST_TOUCH', Float),
+    Column('PTS_PER_PAINT_TOUCH', Float),
+    Column('SEASON', VARCHAR(255), primary_key=True),
+    Column('SEASON_TYPE', VARCHAR(255), primary_key=True)
+)
+
+player_tracking_pull_up_shots = Table(
+    'player_tracking_pull_up_shots',
+    meta,
+    Column('PLAYER_ID', VARCHAR(255), primary_key=True),
+    Column('PLAYER_NAME', VARCHAR(255)),
+    Column('TEAM_ID', VARCHAR(255)),
+    Column('TEAM_ABBREVIATION', VARCHAR(255)),
+    Column('GP', Float),
+    Column('W', Float),
+    Column('L', Float),
+    Column('MIN', Float),
+    Column('PULL_UP_FGM', Float),
+    Column('PULL_UP_FGA', Float),
+    Column('PULL_UP_FG_PCT', Float),
+    Column('PULL_UP_PTS', Float),
+    Column('PULL_UP_FG3M', Float),
+    Column('PULL_UP_FG3A', Float),
+    Column('PULL_UP_FG3_PCT', Float),
+    Column('PULL_UP_EFG_PCT', Float),
+    Column('SEASON', VARCHAR(255), primary_key=True),
+    Column('SEASON_TYPE', VARCHAR(255), primary_key=True)
+)
+
+"""
+'PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'TEAM_ABBREVIATION', 'GP', 'W', 'L', 'MIN', 'OREB', 'OREB_CONTEST',
+'OREB_UNCONTEST', 'OREB_CONTEST_PCT', 'OREB_CHANCES', 'OREB_CHANCE_PCT', 'OREB_CHANCE_DEFER', 'OREB_CHANCE_PCT_ADJ',
+'AVG_OREB_DIST', 'DREB', 'DREB_CONTEST', 'DREB_UNCONTEST', 'DREB_CONTEST_PCT', 'DREB_CHANCES', 'DREB_CHANCE_PCT',
+'DREB_CHANCE_DEFER', 'DREB_CHANCE_PCT_ADJ', 'AVG_DREB_DIST', 'REB', 'REB_CONTEST', 'REB_UNCONTEST', 'REB_CONTEST_PCT', 'REB_CHANCES', 'REB_CHANCE_PCT', 'REB_CHANCE_DEFER', 'REB_CHANCE_PCT_ADJ', 'AVG_REB_DIST', 'SEASON', 'SEASON_TYPE'
+"""

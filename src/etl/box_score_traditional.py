@@ -41,7 +41,7 @@ def rename_tov(df):
 
 
 def download_box_score(game_id):
-    return smart.get_box_score_traditional(game_id)
+    return smart.box_score_traditional(game_id)
 
 
 if __name__ == '__main__':

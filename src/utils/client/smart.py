@@ -6,6 +6,7 @@ import requests
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
+
 class NBATeams:
     AtlantaHawks = '1610612737'
     BostonCeltics = '1610612738'
@@ -63,6 +64,22 @@ class MeasureType:
     Defense = 'Defense'
     FourFactors = 'Four Factors'
     Default = Base
+
+
+class PtMeasureType:
+    Drives = 'Drives'
+    Defense = 'Defense'
+    CatchAndShoot = 'CatchShoot'
+    Passing = 'Passing'
+    Touches = 'Possessions'
+    PullUp = 'PullUpShot'
+    Rebounding = 'Rebounding'
+    Efficiency = 'Efficiency'
+    SpeedDistance = 'SpeedDistance'
+    ElbowTouches = 'ElbowTouch'
+    PostTouches = 'PostTouch'
+    PaintTouches = 'PaintTouch'
+
 
 class Smart:
     def __init__(self):
@@ -177,8 +194,62 @@ class Smart:
 
         return self.api_call('leaguedashplayerstats', params=params)['LeagueDashPlayerStats']
 
-    def get_box_score_traditional(self, game_id=None, start_period=None, end_period=None, start_range=None,
-                                  end_range=None, range_type=None):
+    def player_season_tracking(self, season=None, season_type=SeasonType.Default, pt_measure_type=None,
+                               per_mode=PerMode.Default):
+        return self.season_tracking_stats(season=season, season_type=season_type, pt_measure_type=pt_measure_type,
+                                          per_mode=per_mode, player_or_team='Player')
+
+    def team_season_tracking(self, season=None, season_type=SeasonType.Default, pt_measure_type=None,
+                             per_mode=PerMode.Default):
+        return self.season_tracking_stats(season=season, season_type=season_type, pt_measure_type=pt_measure_type,
+                                          per_mode=per_mode, player_or_team='Team')
+
+    def season_tracking_stats(self, season=None, season_type=SeasonType.Default, pt_measure_type=None,
+                              per_mode=PerMode.Default, player_or_team=None):
+        if season is None:
+            season = self.default_season
+        if pt_measure_type is None:
+            raise ValueError("Must provide a MeasureType")
+        if player_or_team is None:
+            raise ValueError("Must provide either Player or Team")
+
+        params = (
+            ('College', ''),
+            ('Conference', ''),
+            ('Country', ''),
+            ('DateFrom', ''),
+            ('DateTo', ''),
+            ('Division', ''),
+            ('DraftPick', ''),
+            ('DraftYear', ''),
+            ('GameScope', ''),
+            ('Height', ''),
+            ('LastNGames', '0'),
+            ('LeagueID', '00'),
+            ('Location', ''),
+            ('Month', '0'),
+            ('OpponentTeamID', '0'),
+            ('Outcome', ''),
+            ('PORound', '0'),
+            ('PerMode', per_mode),
+            ('PlayerExperience', ''),
+            ('PlayerOrTeam', player_or_team),
+            ('PlayerPosition', ''),
+            ('PtMeasureType', pt_measure_type),
+            ('Season', season),
+            ('SeasonSegment', ''),
+            ('SeasonType', season_type),
+            ('StarterBench', ''),
+            ('TeamID', '0'),
+            ('VsConference', ''),
+            ('VsDivision', ''),
+            ('Weight', ''),
+        )
+
+        return self.api_call('leaguedashptstats', params=params)['LeagueDashPtStats']
+
+    def box_score_traditional(self, game_id=None, start_period=None, end_period=None, start_range=None,
+                              end_range=None, range_type=None):
         if game_id is None:
             raise ValueError("Must provide a Game Id")
         if start_period is None:
