@@ -1,7 +1,7 @@
 # WIP: Python NBA Data Pipeline
 
 ## Steps:
-1. install mysql
+1. install mysql: https://dev.mysql.com/downloads/installer/
 2. set up username and password
 3. mysql server start
 4. mysql -u <USER_NAME> -p
