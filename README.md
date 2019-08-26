@@ -23,8 +23,14 @@
 #### Download Game Log
 `python3 -m src.etl.game_log -h`
 
-#### Download Box Scores
+#### Download Box Scores Traditional
 `python3 -m src.etl.box_score_traditional -h`
+
+#### Download Box Scores Advanced
+`python3 -m src.etl.box_score_advanced -h`
+
+#### Download Play By Play
+`python3 -m src.etl.play_by_play -h`
 
 #### Download Tracking Data
 `python3 -m src.etl.player_tracking_season_totals -h`

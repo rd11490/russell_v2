@@ -274,6 +274,32 @@ class Smart:
 
         return self.api_call('boxscoretraditionalv2', params=params)
 
+    def box_score_advanced(self, game_id=None, start_period=None, end_period=None, start_range=None,
+                           end_range=None, range_type=None):
+        if game_id is None:
+            raise ValueError("Must provide a Game Id")
+        if start_period is None:
+            start_period = 0
+        if end_period is None:
+            end_period = 14
+        if start_range is None:
+            start_range = 0
+        if end_range is None:
+            end_range = 2147483647
+        if range_type is None:
+            range_type = 0
+
+        params = (
+            ('EndPeriod', end_period),
+            ('EndRange', end_range),
+            ('GameID', game_id),
+            ('RangeType', range_type),
+            ('StartPeriod', start_period),
+            ('StartRange', start_range)
+        )
+
+        return self.api_call('boxscoreadvancedv2', params=params)
+
     def get_player_game_log(self, season_type=SeasonType.Default, season=None, league_id=None, date_to=None,
                             date_from=None):
         return self.__get_league_game_log(player_or_team='P', season_type=season_type, season=season,
@@ -284,7 +310,7 @@ class Smart:
         return self.__get_league_game_log(player_or_team='T', season_type=season_type, season=season,
                                           league_id=league_id, date_to=date_to, date_from=date_from)
 
-    def get_play_by_play(self, game_id=None, start_period=None, end_period=None):
+    def play_by_play(self, game_id=None, start_period=None, end_period=None):
         if game_id is None:
             raise ValueError("Must provide a Game Id")
         if start_period is None:
@@ -298,7 +324,7 @@ class Smart:
             ('endPeriod', end_period)
         )
 
-        return self.api_call('playbyplayv2', params=params)
+        return self.api_call('playbyplayv2', params=params)['PlayByPlay']
 
     def __get_league_game_log(self, player_or_team=None, season_type=SeasonType.Default, season=None, league_id=None,
                               date_to=None,

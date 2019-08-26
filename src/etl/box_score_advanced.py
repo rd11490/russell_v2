@@ -10,7 +10,7 @@ def download_box_scores(season, season_type, delta):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}'".format(season, season_type)
     game_log = mysql_client.read_table(table=game_log_table, where=where_clause)
     if delta:
-        advanced_complete = mysql_client.read_table(team_box_score_traditional, where_clause)
+        advanced_complete = mysql_client.read_table(team_box_score_advanced, where_clause)
         log_ids = set(game_log['GAME_ID'].unique())
         pbp_ids = set(advanced_complete['GAME_ID'].unique())
         game_ids = log_ids - pbp_ids
@@ -18,22 +18,7 @@ def download_box_scores(season, season_type, delta):
         game_ids = game_log['GAME_ID'].unique()
 
     for game_id in game_ids:
-        print(game_id)
-        box_score_data = download_box_score(game_id=game_id)
-        team_stats = clean_df(add_season_and_type(box_score_data['TeamStats'], season, season_type))
-        player_stats = clean_df(add_season_and_type(box_score_data['PlayerStats'], season, season_type))
-        try:
-            mysql_client.write(team_stats, table=team_box_score_traditional)
-        except:
-            print(team_stats)
-            raise Exception("Writing to DB failed!")
-
-        try:
-            mysql_client.write(player_stats, table=player_box_score_traditional)
-        except:
-            print(player_stats)
-            raise Exception("Writing to DB failed!")
-
+        download_and_write_box_score(game_id, season, season_type)
         api_rate_limit()
 
 
@@ -50,7 +35,25 @@ def rename_tov(df):
 
 
 def download_box_score(game_id):
-    return smart.box_score_traditional(game_id)
+    return smart.box_score_advanced(game_id)
+
+
+def download_and_write_box_score(game_id, season, season_type):
+    print(game_id)
+    box_score_data = download_box_score(game_id=game_id)
+    team_stats = clean_df(add_season_and_type(box_score_data['TeamStats'], season, season_type))
+    player_stats = clean_df(add_season_and_type(box_score_data['PlayerStats'], season, season_type))
+    try:
+        mysql_client.write(team_stats, table=team_box_score_advanced)
+    except:
+        print(team_stats)
+        raise Exception("Writing to DB failed!")
+
+    try:
+        mysql_client.write(player_stats, table=player_box_score_advanced)
+    except:
+        print(player_stats)
+        raise Exception("Writing to DB failed!")
 
 
 if __name__ == '__main__':
@@ -59,6 +62,7 @@ if __name__ == '__main__':
     season_type_arg(parser)
     game_id_arg(parser)
     delta_arg(parser)
+
     args = parser.parse_args()
 
     if args.game_id is None:
