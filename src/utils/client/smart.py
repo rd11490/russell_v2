@@ -393,10 +393,13 @@ class Smart:
         sets = resp.json()['resultSets']
         results = {}
         for s in sets:
-            frame = pd.DataFrame(s['rowSet'])
-            frame.columns = s['headers']
-            results[s['name']] = frame
-        return results
-
+            try:
+                frame = pd.DataFrame(s['rowSet'])
+                frame.columns = s['headers']
+                results[s['name']] = frame
+                return results
+            except:
+                print(s)
+                raise Exception("Failed to deserialize the response!")
 
 smart = Smart()
