@@ -644,3 +644,15 @@ play_by_play = Table(
     Column('SEASON', VARCHAR(255)),
     Column('SEASON_TYPE', VARCHAR(255))
 )
+
+players_on_court_per_period = Table(
+    'players_on_court_per_period',
+    meta,
+    Column('GAME_ID', VARCHAR(255), primary_key=True),
+    Column('PERIOD', Integer, primary_key=True),
+    Column('PLAYER_ID', VARCHAR(255), primary_key=True),
+    Column('PLAYER_NAME', VARCHAR(255)),
+    Column('TEAM_ID', VARCHAR(255)),
+    Column('SEASON', VARCHAR(255)),
+    Column('SEASON_TYPE', VARCHAR(255))
+)

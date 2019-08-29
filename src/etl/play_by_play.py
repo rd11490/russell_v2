@@ -14,12 +14,8 @@ def download_play_by_play(season, season_type, delta):
         log_ids = set(game_log['GAME_ID'].unique())
         pbp_ids = set(play_by_play_complete['GAME_ID'].unique())
         game_ids = log_ids - pbp_ids
-        print(len(log_ids))
-        print(len(pbp_ids))
-        print(len(game_ids))
     else:
         game_ids = game_log['GAME_ID'].unique()
-        print(len(game_ids))
 
     for game_id in game_ids:
         print(game_id)
