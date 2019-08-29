@@ -56,4 +56,6 @@ if __name__ == '__main__':
     if args.game_id is None:
         download_play_by_play(args.season, args.season_type, args.delta)
     else:
-        print(download_game_play_by_play(args.game_id))
+        season = extract_season_from_game_id(args.game_id)
+        season_type = extract_season_type_from_game_id(args.game_id)
+        download_and_write_play_by_play(args.game_id, season, season_type)

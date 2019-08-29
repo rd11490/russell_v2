@@ -397,9 +397,9 @@ class Smart:
                 frame = pd.DataFrame(s['rowSet'])
                 frame.columns = s['headers']
                 results[s['name']] = frame
-                return results
             except:
                 print(s)
                 raise Exception("Failed to deserialize the response!")
+        return results
 
 smart = Smart()

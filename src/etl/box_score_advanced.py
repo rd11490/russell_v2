@@ -68,4 +68,6 @@ if __name__ == '__main__':
     if args.game_id is None:
         download_box_scores(args.season, args.season_type, args.delta)
     else:
-        print(download_box_score(args.game_id))
+        season = extract_season_from_game_id(args.game_id)
+        season_type = extract_season_type_from_game_id(args.game_id)
+        download_and_write_box_score(args.game_id, season, season_type)

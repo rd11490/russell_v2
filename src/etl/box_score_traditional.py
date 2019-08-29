@@ -18,23 +18,26 @@ def download_box_scores(season, season_type, delta):
         game_ids = game_log['GAME_ID'].unique()
 
     for game_id in game_ids:
-        print(game_id)
-        box_score_data = download_box_score(game_id=game_id)
-        team_stats = clean_df(add_season_and_type(box_score_data['TeamStats'], season, season_type))
-        player_stats = clean_df(add_season_and_type(box_score_data['PlayerStats'], season, season_type))
-        try:
-            mysql_client.write(team_stats, table=team_box_score_traditional)
-        except:
-            print(team_stats)
-            raise Exception("Writing to DB failed!")
-
-        try:
-            mysql_client.write(player_stats, table=player_box_score_traditional)
-        except:
-            print(player_stats)
-            raise Exception("Writing to DB failed!")
-
+        download_and_store_from_game_id(game_id, season, season_type)
         api_rate_limit()
+
+
+def download_and_store_from_game_id(game_id, season, season_type):
+    print(game_id)
+    box_score_data = download_box_score(game_id=game_id)
+    team_stats = clean_df(add_season_and_type(box_score_data['TeamStats'], season, season_type))
+    player_stats = clean_df(add_season_and_type(box_score_data['PlayerStats'], season, season_type))
+    try:
+        mysql_client.write(team_stats, table=team_box_score_traditional)
+    except:
+        print(team_stats)
+        raise Exception("Writing to DB failed!")
+
+    try:
+        mysql_client.write(player_stats, table=player_box_score_traditional)
+    except:
+        print(player_stats)
+        raise Exception("Writing to DB failed!")
 
 
 def clean_df(df):
@@ -64,4 +67,6 @@ if __name__ == '__main__':
     if args.game_id is None:
         download_box_scores(args.season, args.season_type, args.delta)
     else:
-        print(download_box_score(args.game_id))
+        season = extract_season_from_game_id(args.game_id)
+        season_type = extract_season_type_from_game_id(args.game_id)
+        download_and_store_from_game_id(args.game_id, season, season_type)

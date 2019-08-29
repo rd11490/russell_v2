@@ -89,4 +89,6 @@ if __name__ == '__main__':
     if args.game_id is None:
         download_players_on_court_for_season(args.season, args.season_type, args.delta)
     else:
-        pass
+        season = extract_season_from_game_id(args.game_id)
+        season_type = extract_season_type_from_game_id(args.game_id)
+        download_players_at_start_of_period(args.game_id, season, season_type)
