@@ -18,5 +18,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     game_log = download_game_log(args.season, args.season_type)
+    game_log = game_log.fillna(0.0)
     mysql_client.write(game_log, game_log_table)
 
