@@ -6,6 +6,33 @@ from src.utils.storage import *
 from src.utils.utils import *
 
 
+def download_traditional_stats(season, season_type):
+    traditional_stats = download_player_season_stats(season=season, season_type=season_type,
+                                                     measure_type=MeasureType.Base)
+    traditional_stats = traditional_stats[
+        ['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'TEAM_ABBREVIATION', 'AGE', 'GP', 'W', 'L', 'W_PCT', 'MIN', 'FGM',
+         'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'OREB', 'DREB', 'REB', 'AST', 'TOV',
+         'STL', 'BLK', 'BLKA', 'PF', 'PFD', 'PTS', 'PLUS_MINUS', 'NBA_FANTASY_PTS', 'DD2', 'TD3', 'SEASON',
+         'SEASON_TYPE']]
+
+    traditional_stats = clean_fa(traditional_stats)
+
+    mysql_client.write(traditional_stats, player_season_totals_traditional)
+
+
+def download_advanced_stats(season, season_type):
+    advanced_stats = download_player_season_stats(season, season_type, MeasureType.Advanced)
+    advanced_stats = advanced_stats[
+        ['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'TEAM_ABBREVIATION', 'AGE', 'GP', 'W', 'L', 'W_PCT', 'MIN',
+         'OFF_RATING', 'DEF_RATING', 'NET_RATING', 'AST_PCT', 'AST_TO', 'AST_RATIO', 'OREB_PCT', 'DREB_PCT',
+         'REB_PCT', 'TM_TOV_PCT', 'EFG_PCT', 'TS_PCT', 'USG_PCT', 'PACE', 'PACE_PER40', 'PIE', 'POSS', 'FGM', 'FGA',
+         'FGM_PG', 'FGA_PG', 'FG_PCT', 'SEASON', 'SEASON_TYPE']]
+
+    advanced_stats = clean_fa(advanced_stats)
+
+    mysql_client.write(advanced_stats, player_season_totals_advanced)
+
+
 def download_player_season_stats(season, season_type, measure_type):
     print('Downloading player season totals for season: {0}, season_tyoe: {1}, measure_type: {2}'.format(season,
                                                                                                          season_type,
@@ -36,26 +63,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.traditional_stats or args.run_all:
-        traditional_stats = download_player_season_stats(season=args.season, season_type=args.season_type,
-                                                         measure_type=MeasureType.Base)
-        traditional_stats = traditional_stats[
-            ['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'TEAM_ABBREVIATION', 'AGE', 'GP', 'W', 'L', 'W_PCT', 'MIN', 'FGM',
-             'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'OREB', 'DREB', 'REB', 'AST', 'TOV',
-             'STL', 'BLK', 'BLKA', 'PF', 'PFD', 'PTS', 'PLUS_MINUS', 'NBA_FANTASY_PTS', 'DD2', 'TD3', 'SEASON',
-             'SEASON_TYPE']]
-
-        traditional_stats = clean_fa(traditional_stats)
-
-        mysql_client.write(traditional_stats, player_season_totals_traditional)
+        download_traditional_stats(args.season, args.season_type)
 
     if args.advanced_stats or args.run_all:
-        advanced_stats = download_player_season_stats(args.season, args.season_type, MeasureType.Advanced)
-        advanced_stats = advanced_stats[
-            ['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'TEAM_ABBREVIATION', 'AGE', 'GP', 'W', 'L', 'W_PCT', 'MIN',
-             'OFF_RATING', 'DEF_RATING', 'NET_RATING', 'AST_PCT', 'AST_TO', 'AST_RATIO', 'OREB_PCT', 'DREB_PCT',
-             'REB_PCT', 'TM_TOV_PCT', 'EFG_PCT', 'TS_PCT', 'USG_PCT', 'PACE', 'PACE_PER40', 'PIE', 'POSS', 'FGM', 'FGA',
-             'FGM_PG', 'FGA_PG', 'FG_PCT', 'SEASON', 'SEASON_TYPE']]
-
-        advanced_stats = clean_fa(advanced_stats)
-
-        mysql_client.write(advanced_stats, player_season_totals_advanced)
+        download_advanced_stats(args.season, args.season_type)

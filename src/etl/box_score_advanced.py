@@ -6,7 +6,7 @@ from src.utils.storage import *
 from src.utils.utils import *
 
 
-def download_box_scores(season, season_type, delta):
+def download_box_scores_advanced(season, season_type, delta):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}'".format(season, season_type)
     game_log = mysql_client.read_table(table=game_log_table, where=where_clause)
     if delta:
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.game_id is None:
-        download_box_scores(args.season, args.season_type, args.delta)
+        download_box_scores_advanced(args.season, args.season_type, args.delta)
     else:
         season = extract_season_from_game_id(args.game_id)
         season_type = extract_season_type_from_game_id(args.game_id)

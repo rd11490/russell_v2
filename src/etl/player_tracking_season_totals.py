@@ -6,6 +6,21 @@ from src.utils.storage import *
 from src.utils.utils import *
 
 
+def download_all_tracking_stats(season, season_type):
+    retrieve_data(season, season_type, PtMeasureType.Drives, player_tracking_drives)
+    retrieve_data(season, season_type, PtMeasureType.Defense, player_tracking_defense)
+    retrieve_data(season, season_type, PtMeasureType.CatchAndShoot, player_tracking_catch_and_shoot)
+    retrieve_data(season, season_type, PtMeasureType.Passing, player_tracking_passing)
+    retrieve_data(season, season_type, PtMeasureType.Touches, player_tracking_touches)
+    retrieve_data(season, season_type, PtMeasureType.PullUp, player_tracking_pull_up_shots)
+    retrieve_data(season, season_type, PtMeasureType.Rebounding, player_tracking_rebounds)
+    retrieve_data(season, season_type, PtMeasureType.Efficiency, player_tracking_efficiency)
+    retrieve_data(season, season_type, PtMeasureType.SpeedDistance, player_tracking_speed_and_distance)
+    retrieve_data(season, season_type, PtMeasureType.ElbowTouches, player_tracking_elbow_touches)
+    retrieve_data(season, season_type, PtMeasureType.PostTouches, player_tracking_post_touches)
+    retrieve_data(season, season_type, PtMeasureType.PaintTouches, player_tracking_paint_touches)
+
+
 def download_player_player_tracking_stats(season, season_type, pt_measure_type):
     print('Downloading player season totals for season: {0}, season_tyoe: {1}, measure_type: {2}'.format(season,
                                                                                                          season_type,
