@@ -21,7 +21,10 @@ def download_players_on_court_for_season(season, season_type, delta):
 
     for game_id in game_ids:
         print(game_id)
-        download_players_at_start_of_period(game_id, season, season_type)
+        try:
+            download_players_at_start_of_period(game_id, season, season_type)
+        except:
+            print('Failed to download players on court for game: {}'.format(game_id))
         api_rate_limit()
 
 

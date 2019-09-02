@@ -19,7 +19,10 @@ def download_play_by_play(season, season_type, delta):
 
     for game_id in game_ids:
         print(game_id)
-        download_and_write_play_by_play(game_id, season, season_type)
+        try:
+            download_and_write_play_by_play(game_id, season, season_type)
+        except:
+            print('Failed to donwload play_by_play for {}'.format(game_id))
         api_rate_limit()
 
 

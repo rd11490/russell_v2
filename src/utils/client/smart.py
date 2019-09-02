@@ -398,6 +398,7 @@ class Smart:
                 frame.columns = s['headers']
                 results[s['name']] = frame
             except:
+                print(resp.request.path_url)
                 print(s)
                 raise Exception("Failed to deserialize the response!")
         return results
