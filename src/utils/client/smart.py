@@ -300,6 +300,16 @@ class Smart:
 
         return self.api_call('boxscoreadvancedv2', params=params)
 
+    def win_probability(self, game_id=None):
+        if game_id is None:
+            raise ValueError("Must provide a Game Id")
+        params = {
+            ('GameID', game_id),
+            ('RunType', 'each second')
+        }
+        return self.api_call('winprobabilitypbp', params=params)
+
+
     def get_player_game_log(self, season_type=SeasonType.Default, season=None, league_id=None, date_to=None,
                             date_from=None):
         return self.__get_league_game_log(player_or_team='P', season_type=season_type, season=season,

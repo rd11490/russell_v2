@@ -10,7 +10,8 @@ def download_game_log(season, season_type):
     print('Downloading season game log for season: {0}, season_tyoe: {1}'.format(season, season_type))
     season_game_log = smart.get_teams_game_log(season=season, season_type=season_type)
     season_game_log = add_season_and_type(season_game_log, season, season_type)
-    return season_game_log
+    game_log = season_game_log.fillna(0.0)
+    mysql_client.write(game_log, game_log_table)
 
 
 if __name__ == '__main__':
@@ -19,6 +20,5 @@ if __name__ == '__main__':
     season_type_arg(parser)
 
     args = parser.parse_args()
-    game_log = download_game_log(args.season, args.season_type)
-    game_log = game_log.fillna(0.0)
-    mysql_client.write(game_log, game_log_table)
+    download_game_log(args.season, args.season_type)
+

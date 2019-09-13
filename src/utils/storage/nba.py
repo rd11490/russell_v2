@@ -656,3 +656,30 @@ players_on_court_per_period = Table(
     Column('SEASON', VARCHAR(255)),
     Column('SEASON_TYPE', VARCHAR(255))
 )
+
+"""
+"","","","","HOME_PTS","VISITOR_PTS","HOME_SCORE_MARGIN","PERIOD",
+"SECONDS_REMAINING","HOME_POSS_IND","HOME_G","DESCRIPTION","LOCATION","PCTIMESTRING","ISVISIBLE"
+"""
+win_probability = Table(
+    'win_probability',
+    meta,
+    Column('GAME_ID', VARCHAR(255), primary_key=True),
+    Column('PERIOD', Integer, primary_key=True),
+    Column('EVENT_NUM', VARCHAR(255), primary_key=True),
+    Column('HOME_PCT', Float, nullable=True),
+    Column('VISITOR_PCT', Float, nullable=True),
+    Column('HOME_PTS', Integer, nullable=True),
+    Column('VISITOR_PTS', Integer, nullable=True),
+    Column('HOME_SCORE_MARGIN', Integer, nullable=True),
+    Column('SECONDS_REMAINING', Integer, primary_key=True),
+    Column('HOME_POSS_IND', Integer, nullable=True),
+    Column('HOME_G', Integer, nullable=True),
+    Column('DESCRIPTION', Text, nullable=True),
+    Column('LOCATION', VARCHAR(255), nullable=True),
+    Column('PCTIMESTRING', VARCHAR(255), nullable=True),
+    Column('ISVISIBLE', Integer, nullable=True),
+    Column('SEASON', VARCHAR(255)),
+    Column('SEASON_TYPE', VARCHAR(255))
+
+)

@@ -37,3 +37,6 @@
 
 #### Download Tracking Data
 `python3 -m src.etl.player_tracking_season_totals -h`
+
+#### Download Win Probability
+`python3 -m src.etl.win_probability -h`

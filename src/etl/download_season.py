@@ -37,21 +37,31 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.game_log or args.run_all:
+        print('Game Log')
         download_game_log(args.season, args.season_type)
 
     if args.box_scores or args.run_all:
+        print('Box Scores')
+
         download_box_scores_traditional(args.season, args.season_type, args.delta)
         download_box_scores_advanced(args.season, args.season_type, args.delta)
 
     if args.totals or args.run_all:
+        print('Season Totals')
         download_traditional_stats(args.season, args.season_type)
         download_advanced_stats(args.season, args.season_type)
 
     if args.player_tracking or args.run_all:
+        print('Player Tracking Totals')
         download_all_tracking_stats(args.season, args.season_type)
-        
+
     if args.play_by_play or args.run_all:
+        print('Play by Play')
+        print(args.season)
+        print(args.season_type)
+        print(args.delta)
         download_play_by_play(args.season, args.season_type, args.delta)
 
     if args.players_on_court or args.run_all:
+        print('Players On Court')
         download_players_on_court_for_season(args.season, args.season_type, args.delta)

@@ -17,6 +17,7 @@ def download_play_by_play(season, season_type, delta):
     else:
         game_ids = game_log['GAME_ID'].unique()
 
+    print(game_ids)
     for game_id in game_ids:
         print(game_id)
         try:
