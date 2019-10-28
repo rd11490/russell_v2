@@ -17,12 +17,18 @@ def player_id_arg(parser):
                         help='The player id of the player you are trying to download')
 
 
+def team_id_arg(parser):
+    parser.add_argument('-tm', '--team_id', action="store", dest='team_id',
+                        help='The team id of the team you are trying to download')
+
+
 def run_all_arg(parser):
     parser.add_argument('-ra', '--run-all', action='store_true', dest='run_all', help='Run All Commands')
 
 
 def force_arg(parser):
     parser.add_argument('-f', '--force', action='store_true', dest='force', help='Force Command')
+
 
 def delta_arg(parser):
     parser.add_argument('-d', '--delta', action='store_true', dest='delta', help='Delta Command')

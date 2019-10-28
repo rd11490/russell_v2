@@ -658,9 +658,45 @@ players_on_court_per_period = Table(
 )
 
 """
-"","","","","HOME_PTS","VISITOR_PTS","HOME_SCORE_MARGIN","PERIOD",
-"SECONDS_REMAINING","HOME_POSS_IND","HOME_G","DESCRIPTION","LOCATION","PCTIMESTRING","ISVISIBLE"
+'SHOT_ZONE_RANGE', 'SHOT_DISTANCE', 'LOC_X', 'LOC_Y', 'SHOT_ATTEMPTED_FLAG', 'SHOT_MADE_FLAG', 'GAME_DATE', 'HTM', 'VTM'
 """
+
+shot_chart_detail = Table(
+    'shot_chart_detail',
+    meta,
+    Column('PLAYER_ID', VARCHAR(255), primary_key=True, index=True),
+    Column('GAME_ID', VARCHAR(255), primary_key=True, index=True),
+    Column('TEAM_ID', VARCHAR(255), index=True),
+    Column('GAME_EVENT_ID', Integer, primary_key=True),
+
+    Column('GRID_TYPE', VARCHAR(255)),
+    Column('PLAYER_NAME', VARCHAR(255)),
+    Column('TEAM_NAME', VARCHAR(255)),
+    Column('PERIOD', Integer),
+    Column('MINUTES_REMAINING', Integer),
+    Column('SECONDS_REMAINING', Integer),
+    Column('EVENT_TYPE', VARCHAR(255)),
+    Column('ACTION_TYPE', VARCHAR(255)),
+    Column('SHOT_TYPE', VARCHAR(255)),
+    Column('SHOT_ZONE_BASIC', VARCHAR(255)),
+    Column('SHOT_ZONE_AREA', VARCHAR(255)),
+    Column('SHOT_ZONE_RANGE', VARCHAR(255)),
+
+    Column('SHOT_DISTANCE', Integer),
+    Column('LOC_X', Integer),
+    Column('LOC_Y', Integer),
+    Column('SHOT_ATTEMPTED_FLAG', Integer),
+    Column('SHOT_MADE_FLAG', Integer),
+
+    Column('GAME_DATE', VARCHAR(255)),
+    Column('HTM', VARCHAR(255)),
+    Column('VTM', VARCHAR(255)),
+
+    Column('SEASON', VARCHAR(255), index=True),
+    Column('SEASON_TYPE', VARCHAR(255), index=True)
+)
+
+
 win_probability = Table(
     'win_probability',
     meta,

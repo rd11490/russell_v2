@@ -35,6 +35,9 @@
 #### Download Players At The Start Of Each Period
 `python3 -m src.etl.players_on_court_per_period -h`
 
+#### Download Player Season Totals
+`python3 -m src.etl.player_season_totals -h`
+
 #### Download Tracking Data
 `python3 -m src.etl.player_tracking_season_totals -h`
 

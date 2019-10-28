@@ -96,6 +96,8 @@ class Smart:
         }
         self.default_league = '00'
         self.default_season = self.__current_season()
+        self.default_season_type = 'Regular Season'
+
         self.base_url = 'https://stats.nba.com/stats/'
 
     def __current_season(self):
@@ -388,6 +390,60 @@ class Smart:
 
         resp = self.api_call('teamgamelog', params)
         return resp['TeamGameLog']
+
+
+    def get_shot_chart_detail(self, player_id=None, team_id=None, game_id=None, season=None,season_type=None, league_id=None):
+
+        if player_id is None:
+            raise ValueError("Must provide a Team Id")
+        if team_id is None:
+            raise ValueError("Must provide a Team Id")
+        if season is None:
+            season = self.default_season
+        if season_type is None:
+            season_type = self.default_season
+        if league_id is None:
+            league_id = self.default_league
+        if game_id is None:
+            game_id = ''
+
+
+        params = (
+            ('leagueId', league_id),
+            ('season', season),
+            ('seasonType', season_type),
+            ('teamId', team_id),
+            ('playerId', player_id),
+            ('gameID', game_id),
+            ('outcome', ''),
+            ('location', ''),
+            ('month', '0'),
+            ('seasonSegment', ''),
+            ('dateFrom', ''),
+            ('dateTo', ''),
+            ('opponentTeamId', '0'),
+            ('vsConference', ''),
+            ('vsDivision', ''),
+            ('position', ''),
+            ('playerPosition', ''),
+            ('rookieYear', ''),
+            ('gameSegment', ''),
+            ('period', '0'),
+            ('lastNGames', '0'),
+            ('clutchTime', ''),
+            ('aheadBehind', ''),
+            ('pointDiff', ''),
+            ('rangeType', '0'),
+            ('startPeriod', '1'),
+            ('endPeriod', '10'),
+            ('startRange', '0'),
+            ('endRange', '2147483647'),
+            ('contextFilter', ''),
+            ('contextMeasure', 'FGA'),
+        )
+
+        response = self.api_call('shotchartdetail', params=params)
+        return response['Shot_Chart_Detail']
 
     def api_call(self, endpoint, params, headers=None):
         if headers is None:
