@@ -4,6 +4,7 @@ from src.utils.arg_parser import *
 from src.utils.client import smart
 from src.utils.storage import *
 from src.utils.utils import *
+import sys
 
 
 def download_season_shots(season, season_type):
@@ -17,14 +18,16 @@ def download_season_shots(season, season_type):
         try:
             download_and_write_shots(player_id=player, team_id=team,
                                      season=season, season_type=season_type)
-        except:
+        except Exception as e:
+            print(e)
             print('Failed to donwload shot chart for {} on team {}'.format(player, team))
         api_rate_limit()
 
 
 def download_and_write_shots(player_id, team_id, season, season_type):
+    print('Downloading Shots for {} - {} - {} - {}'.format(player_id, team_id, season, season_type))
     shots = download_player_shot_chart(player_id=player_id, team_id=team_id, season=season, season_type=season_type)
-    if shots.shape()[0] == 0:
+    if shots.shape[0] == 0:
         return
     shots = clean_df(add_season_and_type(shots, season, season_type))
     try:
