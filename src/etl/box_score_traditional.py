@@ -5,6 +5,8 @@ from src.utils.client import smart
 from src.utils.storage import *
 from src.utils.utils import *
 
+import multiprocessing as mp
+
 
 def download_box_scores_traditional(season, season_type, delta):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}'".format(season, season_type)
@@ -17,9 +19,19 @@ def download_box_scores_traditional(season, season_type, delta):
     else:
         game_ids = game_log['GAME_ID'].unique()
 
+    pool = mp.Pool(mp.cpu_count())
+    results = []
+
     for game_id in game_ids:
-        download_and_store_from_game_id(game_id, season, season_type)
-        api_rate_limit()
+        out = pool.apply_async(download_and_store_from_game_id, args=(game_id, season, season_type))
+        results.append(out)
+
+    pool.close()
+    pool.join()
+
+    print('WAITING FOR GETS')
+    result = [r.get() for r in results]
+    print(result)
 
 
 def download_and_store_from_game_id(game_id, season, season_type):

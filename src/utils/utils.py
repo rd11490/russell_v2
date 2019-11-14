@@ -2,7 +2,7 @@ import time
 
 from .client.smart import SeasonType
 
-SLEEP_TIME = 1.25
+SLEEP_TIME = 0.01
 
 
 def add_field(df, name, value):

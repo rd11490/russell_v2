@@ -7,6 +7,8 @@ from src.etl.play_by_play import download_play_by_play
 from src.etl.player_season_totals import download_advanced_stats, download_traditional_stats
 from src.etl.player_tracking_season_totals import download_all_tracking_stats
 from src.etl.players_on_court_per_period import download_players_on_court_for_season
+from src.etl.shots import download_season_shots
+
 from src.utils.arg_parser import *
 
 if __name__ == '__main__':
@@ -34,6 +36,9 @@ if __name__ == '__main__':
     parser.add_argument('-poc', '--players_on_court', action='store_true', dest='players_on_court',
                         help='Download Players On Court')
 
+    parser.add_argument('-sts', '--shots', action='store_true', dest='shots',
+                        help='Download Shots')
+
     args = parser.parse_args()
 
     if args.game_log or args.run_all:
@@ -41,9 +46,9 @@ if __name__ == '__main__':
         download_game_log(args.season, args.season_type)
 
     if args.box_scores or args.run_all:
-        print('Box Scores')
-
+        print('Box Scores - Traditional')
         download_box_scores_traditional(args.season, args.season_type, args.delta)
+        print('Box Scores - Advanced')
         download_box_scores_advanced(args.season, args.season_type, args.delta)
 
     if args.totals or args.run_all:
@@ -65,3 +70,7 @@ if __name__ == '__main__':
     if args.players_on_court or args.run_all:
         print('Players On Court')
         download_players_on_court_for_season(args.season, args.season_type, args.delta)
+
+    if args.shots or args.run_all:
+        print('Shots')
+        download_season_shots(args.season, args.season_type)

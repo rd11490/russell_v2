@@ -43,3 +43,10 @@
 
 #### Download Win Probability
 `python3 -m src.etl.win_probability -h`
+
+#### Download Shots
+`python3 -m src.etl.shots -h`
+
+#### Download Season
+`python3 -m src.etl.download_season -h`
+`python3 -m src.etl.download_season -s 2018-19 -st 'Regular Season' --run-all`

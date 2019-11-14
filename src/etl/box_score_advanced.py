@@ -5,6 +5,8 @@ from src.utils.client import smart
 from src.utils.storage import *
 from src.utils.utils import *
 
+import multiprocessing as mp
+
 
 def download_box_scores_advanced(season, season_type, delta):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}'".format(season, season_type)
@@ -17,9 +19,19 @@ def download_box_scores_advanced(season, season_type, delta):
     else:
         game_ids = game_log['GAME_ID'].unique()
 
+    pool = mp.Pool(mp.cpu_count())
+    results = []
+
     for game_id in game_ids:
-        download_and_write_box_score(game_id, season, season_type)
-        api_rate_limit()
+        out = pool.apply_async(download_and_write_box_score, args=(game_id, season, season_type))
+        results.append(out)
+
+    pool.close()
+    pool.join()
+
+    print('WAITING FOR GETS')
+    result = [r.get() for r in results]
+    print(result)
 
 
 def clean_df(df):
@@ -54,6 +66,7 @@ def download_and_write_box_score(game_id, season, season_type):
     except:
         print(player_stats)
         raise Exception("Writing to DB failed!")
+    return True
 
 
 if __name__ == '__main__':

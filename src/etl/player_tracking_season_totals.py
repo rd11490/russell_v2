@@ -38,10 +38,13 @@ def clean_fa(df):
 
 
 def retrieve_data(season, season_type, pt_measure_type, table):
-    stats = download_player_player_tracking_stats(season, season_type, pt_measure_type)
-    stats = clean_fa(stats)
-    stats = stats.fillna(0.0)
-    mysql_client.write(stats, table)
+    try:
+        stats = download_player_player_tracking_stats(season, season_type, pt_measure_type)
+        stats = clean_fa(stats)
+        stats = stats.fillna(0.0)
+        mysql_client.write(stats, table)
+    except:
+        raise Exception('Failed to get Tracking Data for {} - {} - {}'.format(season, season_type, pt_measure_type))
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import datetime
 
 import pandas as pd
 import requests
+import sys
 
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -311,7 +312,6 @@ class Smart:
         }
         return self.api_call('winprobabilitypbp', params=params)
 
-
     def get_player_game_log(self, season_type=SeasonType.Default, season=None, league_id=None, date_to=None,
                             date_from=None):
         return self.__get_league_game_log(player_or_team='P', season_type=season_type, season=season,
@@ -391,8 +391,8 @@ class Smart:
         resp = self.api_call('teamgamelog', params)
         return resp['TeamGameLog']
 
-
-    def get_shot_chart_detail(self, player_id=None, team_id=None, game_id=None, season=None,season_type=None, league_id=None):
+    def get_shot_chart_detail(self, player_id=None, team_id=None, game_id=None, season=None, season_type=None,
+                              league_id=None):
 
         if player_id is None:
             raise ValueError("Must provide a Team Id")
@@ -406,7 +406,6 @@ class Smart:
             league_id = self.default_league
         if game_id is None:
             game_id = ''
-
 
         params = (
             ('leagueId', league_id),
@@ -446,27 +445,39 @@ class Smart:
         return response['Shot_Chart_Detail']
 
     def api_call(self, endpoint, params, headers=None):
-        if headers is None:
-            headers = self.headers
+        return self.api_call_with_retry(endpoint, params, headers, 10)
 
-        resp = requests.get("{}{}".format(self.base_url, endpoint), params=params, headers=headers)
-
-        if resp.status_code != 200:
-            print(resp.request.path_url)
-            print(resp.content)
-            raise ValueError('{} returned with the status code: {}'.format(endpoint, resp.status_code))
-
-        sets = resp.json()['resultSets']
-        results = {}
-        for s in sets:
+    def api_call_with_retry(self, endpoint, params, headers=None, retries_left=10):
+        print('Calling: "{}{}" -- retries remaining: {}'.format(self.base_url, endpoint, retries_left))
+        if retries_left>0:
             try:
-                frame = pd.DataFrame(s['rowSet'])
-                frame.columns = s['headers']
-                results[s['name']] = frame
+                if headers is None:
+                    headers = self.headers
+
+                resp = requests.get("{}{}".format(self.base_url, endpoint), params=params, headers=headers, timeout=10)
+
+                if resp.status_code != 200:
+                    print(resp.request.path_url)
+                    print(resp.content)
+                    raise ValueError('{} returned with the status code: {}'.format(endpoint, resp.status_code))
+
+                sets = resp.json()['resultSets']
+                results = {}
+                for s in sets:
+                    try:
+                        frame = pd.DataFrame(s['rowSet'])
+                        frame.columns = s['headers']
+                        results[s['name']] = frame
+                    except:
+                        print(resp.request.path_url)
+                        print(s)
+                        raise Exception("Failed to deserialize the response!")
+                return results
             except:
-                print(resp.request.path_url)
-                print(s)
-                raise Exception("Failed to deserialize the response!")
-        return results
+                print("Unexpected error:", sys.exc_info()[0])
+                return self.api_call_with_retry(endpoint, params, headers, retries_left - 1)
+        else:
+            raise Exception('Number of retries exceeded')
+
 
 smart = Smart()

@@ -5,6 +5,8 @@ from src.utils.client import smart
 from src.utils.storage import *
 from src.utils.utils import *
 
+import multiprocessing as mp
+
 
 def download_play_by_play(season, season_type, delta):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}'".format(season, season_type)
@@ -17,14 +19,20 @@ def download_play_by_play(season, season_type, delta):
     else:
         game_ids = game_log['GAME_ID'].unique()
 
-    print(game_ids)
+    pool = mp.Pool(mp.cpu_count())
+    results = []
+
     for game_id in game_ids:
         print(game_id)
-        try:
-            download_and_write_play_by_play(game_id, season, season_type)
-        except:
-            print('Failed to donwload play_by_play for {}'.format(game_id))
-        api_rate_limit()
+        out = pool.apply_async(download_and_write_play_by_play, args=(game_id, season, season_type))
+        results.append(out)
+
+    pool.close()
+    pool.join()
+
+    print('WAITING FOR GETS')
+    result = [r.get() for r in results]
+    print(result)
 
 
 def clean_df(df):

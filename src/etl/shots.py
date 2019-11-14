@@ -4,7 +4,7 @@ from src.utils.arg_parser import *
 from src.utils.client import smart
 from src.utils.storage import *
 from src.utils.utils import *
-import sys
+import multiprocessing as mp
 
 
 def download_season_shots(season, season_type):
@@ -12,16 +12,27 @@ def download_season_shots(season, season_type):
     players = mysql_client.read_table(table=player_box_score_traditional, where=where_clause)
     players = players[['PLAYER_ID', 'TEAM_ID']].drop_duplicates()
 
+    pool = mp.Pool(mp.cpu_count())
+    results = []
+
     for p in players.index:
-        player = players.loc[p, 'PLAYER_ID']
-        team = players.loc[p, 'TEAM_ID']
-        try:
-            download_and_write_shots(player_id=player, team_id=team,
-                                     season=season, season_type=season_type)
-        except Exception as e:
-            print(e)
-            print('Failed to donwload shot chart for {} on team {}'.format(player, team))
-        api_rate_limit()
+        out = pool.apply_async(download_player_shots, args=(players, p, season, season_type))
+        results.append(out)
+
+    pool.close()
+    pool.join()
+
+    print('WAITING FOR GETS')
+    result = [r.get() for r in results]
+    print(result)
+
+
+def download_player_shots(players, p, season, season_type):
+    player = players.loc[p, 'PLAYER_ID']
+    team = players.loc[p, 'TEAM_ID']
+
+    print("Downloading shots for Player: {} - Team: {}".format(player, team))
+    download_and_write_shots(player_id=player, team_id=team, season=season, season_type=season_type)
 
 
 def download_and_write_shots(player_id, team_id, season, season_type):

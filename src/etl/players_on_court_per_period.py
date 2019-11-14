@@ -7,6 +7,8 @@ from src.utils.client import smart
 from src.utils.storage import *
 from src.utils.utils import *
 
+import multiprocessing as mp
+
 
 def download_players_on_court_for_season(season, season_type, delta):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}'".format(season, season_type)
@@ -19,39 +21,69 @@ def download_players_on_court_for_season(season, season_type, delta):
     else:
         game_ids = game_log['GAME_ID'].unique()
 
+    pool = mp.Pool(mp.cpu_count())
+    results = []
+
     for game_id in game_ids:
         print(game_id)
-        try:
-            download_players_at_start_of_period(game_id, season, season_type)
-        except:
-            print('Failed to download players on court for game: {}'.format(game_id))
-        api_rate_limit()
+        out = pool.apply_async(download_players_at_start_of_period, args=(game_id, season, season_type))
+        results.append(out)
+
+    pool.close()
+    pool.join()
+
+    print('WAITING FOR GETS')
+    result = [r.get() for r in results]
+    print(result)
+
+
+def length_of_period(period):
+    if period < 5:
+        return 12 * 60
+    else:
+        return 5 * 60
 
 
 def calculate_time_at_period(period):
     if period > 5:
-        return (720 * 4 + (period - 5) * (5 * 60)) * 10
+        return (720 * 4 + (period - 5) * (5 * 60))
     else:
-        return (720 * (period - 1)) * 10
+        return (720 * (period - 1))
+
+
+def convert_time_to_seconds(row):
+    period = row['PERIOD']
+    time_str = row['PCTIMESTRING']
+    mins, sec = time_str.split(':')
+    time_at_start = calculate_time_at_period(period) * 10
+    len_of_period = length_of_period(period)
+    min_int = int(mins) * 60
+    sec_int = int(sec)
+    time_elapsed = len_of_period - (min_int + sec_int)
+    return time_at_start + time_elapsed
 
 
 def split_subs(df, tag):
-    subs = df[[tag, 'PERIOD', 'EVENTNUM']]
+    subs = df[[tag, 'PERIOD', 'EVENTNUM', 'TIME']]
     subs['SUB'] = tag
-    subs.columns = ['PLAYER_ID', 'PERIOD', 'EVENTNUM', 'SUB']
+    subs.columns = ['PLAYER_ID', 'PERIOD', 'EVENTNUM', 'TIME', 'SUB']
     return subs
 
 
 def download_players_at_start_of_period(game_id, season, season_type):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}' and GAME_ID = '{}'".format(season, season_type, game_id)
     frame = mysql_client.read_table(play_by_play, where_clause)
-    substitutions_only = frame[frame["EVENTMSGTYPE"] == 8][['PERIOD', 'EVENTNUM', 'PLAYER1_ID', 'PLAYER2_ID']]
-    substitutions_only.columns = ['PERIOD', 'EVENTNUM', 'OUT', 'IN']
+    substitutions_only = frame[frame["EVENTMSGTYPE"] == 8][
+        ['PERIOD', 'EVENTNUM', 'PLAYER1_ID', 'PLAYER2_ID', 'PCTIMESTRING']]
+    substitutions_only['PCTIMESTRING'] = substitutions_only.apply(convert_time_to_seconds, axis=1)
+    substitutions_only.columns = ['PERIOD', 'EVENTNUM', 'OUT', 'IN', 'TIME']
     subs_in = split_subs(substitutions_only, 'IN')
     subs_out = split_subs(substitutions_only, 'OUT')
 
-    full_subs = pd.concat([subs_out, subs_in], axis=0).reset_index()[['PLAYER_ID', 'PERIOD', 'EVENTNUM', 'SUB']]
-    first_event_of_period = full_subs.loc[full_subs.groupby(by=['PERIOD', 'PLAYER_ID'])['EVENTNUM'].idxmin()]
+    full_subs = pd.concat([subs_out, subs_in], axis=0).reset_index()[['PLAYER_ID', 'PERIOD', 'EVENTNUM', 'SUB', 'TIME']]
+
+    full_subs = full_subs.sort_values(by=['TIME', 'EVENTNUM'])
+    first_event_of_period = full_subs.loc[full_subs.groupby(by=['PERIOD', 'PLAYER_ID'])['TIME'].idxmin()]
     players_subbed_in_at_each_period = first_event_of_period[first_event_of_period['SUB'] == 'IN'][
         ['PLAYER_ID', 'PERIOD', 'SUB']]
 
@@ -59,8 +91,8 @@ def download_players_at_start_of_period(game_id, season, season_type):
 
     frames = []
     for period in periods:
-        low = calculate_time_at_period(period) + 5
-        high = calculate_time_at_period(period + 1) - 5
+        low = 10 * calculate_time_at_period(period) + 5
+        high = 10 * calculate_time_at_period(period + 1) - 5
         boxscore = smart.box_score_traditional(game_id=game_id, range_type=2, start_range=low, end_range=high)
         boxscore_players = boxscore['PlayerStats'][['PLAYER_NAME', 'PLAYER_ID', 'TEAM_ID']].copy(True)
         boxscore_players['PERIOD'] = period
@@ -71,14 +103,20 @@ def download_players_at_start_of_period(game_id, season, season_type):
         joined_players = pd.merge(boxscore_players, players_subbed_in_at_period, on=['PLAYER_ID', 'PERIOD'], how='left')
         joined_players = joined_players[pd.isnull(joined_players['SUB'])][
             ['PLAYER_NAME', 'PLAYER_ID', 'TEAM_ID', 'PERIOD']]
+
+        if joined_players.shape[0] != 10:
+            print(players_subbed_in_at_period)
+            print(boxscore_players)
+            print(joined_players)
+            raise Exception('Incorrect Number of players found for {} - {}'.format(game_id, period))
         frames.append(joined_players)
 
     players = pd.concat(frames)
     players['GAME_ID'] = game_id
     players['SEASON'] = season
     players['SEASON_TYPE'] = season_type
+
     mysql_client.write(players, players_on_court_per_period)
-    api_rate_limit()
 
 
 if __name__ == '__main__':
