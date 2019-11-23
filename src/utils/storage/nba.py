@@ -2,6 +2,27 @@ from sqlalchemy import Column, Integer, VARCHAR, Float, Text
 from sqlalchemy import MetaData
 from sqlalchemy import Table
 
+
+def varchar_column(name, chars=255):
+    return Column(name, VARCHAR(chars), nullable=True)
+
+
+def primary_varchar_column(name, chars=255):
+    return Column(name, VARCHAR(chars), primary_key=True)
+
+
+def float_column(name):
+    return Column(name, Float, nullable=True)
+
+
+def int_column(name):
+    return Column(name, Integer, nullable=True)
+
+
+def text_column(name):
+    return Column(name, Text, nullable=True)
+
+
 meta = MetaData()
 game_log_table = Table(
     'game_log',
@@ -657,10 +678,6 @@ players_on_court_per_period = Table(
     Column('SEASON_TYPE', VARCHAR(255))
 )
 
-"""
-'SHOT_ZONE_RANGE', 'SHOT_DISTANCE', 'LOC_X', 'LOC_Y', 'SHOT_ATTEMPTED_FLAG', 'SHOT_MADE_FLAG', 'GAME_DATE', 'HTM', 'VTM'
-"""
-
 shot_chart_detail = Table(
     'shot_chart_detail',
     meta,
@@ -696,7 +713,6 @@ shot_chart_detail = Table(
     Column('SEASON_TYPE', VARCHAR(255), index=True)
 )
 
-
 win_probability = Table(
     'win_probability',
     meta,
@@ -717,5 +733,160 @@ win_probability = Table(
     Column('ISVISIBLE', Integer, nullable=True),
     Column('SEASON', VARCHAR(255)),
     Column('SEASON_TYPE', VARCHAR(255))
+)
 
+closet_defender_shooting = Table(
+    'shot_dashboard_closet_defender_shooting',
+    meta,
+    primary_varchar_column("PLAYER_ID", chars=20),
+    text_column("PLAYER_NAME_LAST_FIRST"),
+    text_column("SORT_ORDER"),
+    int_column("GP"),
+    int_column("G"),
+    primary_varchar_column("CLOSE_DEF_DIST_RANGE"),
+    float_column("FGA_FREQUENCY"),
+    int_column("FGM"),
+    int_column("FGA"),
+    float_column("FG_PCT"),
+    float_column("EFG_PCT"),
+    float_column("FG2A_FREQUENCY"),
+    int_column("FG2M"),
+    int_column("FG2A"),
+    float_column("FG2_PCT"),
+    float_column("FG3A_FREQUENCY"),
+    int_column("FG3M"),
+    int_column("FG3A"),
+    float_column("FG3_PCT"),
+    primary_varchar_column("SEASON", chars=20),
+    primary_varchar_column("SEASON_TYPE"),
+)
+
+closet_defender_shooting_10_plus = Table(
+    'shot_dashboard_closet_defender_shooting_10_plust',
+    meta,
+    primary_varchar_column("PLAYER_ID", chars=20),
+    text_column("PLAYER_NAME_LAST_FIRST"),
+    text_column("SORT_ORDER"),
+    int_column("GP"),
+    int_column("G"),
+    primary_varchar_column("CLOSE_DEF_DIST_RANGE"),
+    float_column("FGA_FREQUENCY"),
+    int_column("FGM"),
+    int_column("FGA"),
+    float_column("FG_PCT"),
+    float_column("EFG_PCT"),
+    float_column("FG2A_FREQUENCY"),
+    int_column("FG2M"),
+    int_column("FG2A"),
+    float_column("FG2_PCT"),
+    float_column("FG3A_FREQUENCY"),
+    int_column("FG3M"),
+    int_column("FG3A"),
+    float_column("FG3_PCT"),
+    primary_varchar_column("SEASON", chars=20),
+    primary_varchar_column("SEASON_TYPE"),
+)
+
+touch_time_shooting = Table(
+    'shot_dashboard_touch_time_shooting',
+    meta,
+    primary_varchar_column("PLAYER_ID", chars=20),
+    text_column("PLAYER_NAME_LAST_FIRST"),
+    text_column("SORT_ORDER"),
+    int_column("GP"),
+    int_column("G"),
+    primary_varchar_column("TOUCH_TIME_RANGE"),
+    float_column("FGA_FREQUENCY"),
+    int_column("FGM"),
+    int_column("FGA"),
+    float_column("FG_PCT"),
+    float_column("EFG_PCT"),
+    float_column("FG2A_FREQUENCY"),
+    int_column("FG2M"),
+    int_column("FG2A"),
+    float_column("FG2_PCT"),
+    float_column("FG3A_FREQUENCY"),
+    int_column("FG3M"),
+    int_column("FG3A"),
+    float_column("FG3_PCT"),
+    primary_varchar_column("SEASON", chars=20),
+    primary_varchar_column("SEASON_TYPE"),
+)
+
+dribble_shooting = Table(
+    'shot_dashboard_dribble_shooting',
+    meta,
+    primary_varchar_column("PLAYER_ID", chars=20),
+    text_column("PLAYER_NAME_LAST_FIRST"),
+    text_column("SORT_ORDER"),
+    int_column("GP"),
+    int_column("G"),
+    primary_varchar_column("DRIBBLE_RANGE"),
+    float_column("FGA_FREQUENCY"),
+    int_column("FGM"),
+    int_column("FGA"),
+    float_column("FG_PCT"),
+    float_column("EFG_PCT"),
+    float_column("FG2A_FREQUENCY"),
+    int_column("FG2M"),
+    int_column("FG2A"),
+    float_column("FG2_PCT"),
+    float_column("FG3A_FREQUENCY"),
+    int_column("FG3M"),
+    int_column("FG3A"),
+    float_column("FG3_PCT"),
+    primary_varchar_column("SEASON", chars=20),
+    primary_varchar_column("SEASON_TYPE"),
+)
+
+shot_clock_shooting = Table(
+    'shot_dashboard_shot_clock_shooting',
+    meta,
+    primary_varchar_column("PLAYER_ID", chars=20),
+    text_column("PLAYER_NAME_LAST_FIRST"),
+    text_column("SORT_ORDER"),
+    int_column("GP"),
+    int_column("G"),
+    primary_varchar_column("SHOT_CLOCK_RANGE"),
+    float_column("FGA_FREQUENCY"),
+    int_column("FGM"),
+    int_column("FGA"),
+    float_column("FG_PCT"),
+    float_column("EFG_PCT"),
+    float_column("FG2A_FREQUENCY"),
+    int_column("FG2M"),
+    int_column("FG2A"),
+    float_column("FG2_PCT"),
+    float_column("FG3A_FREQUENCY"),
+    int_column("FG3M"),
+    int_column("FG3A"),
+    float_column("FG3_PCT"),
+    primary_varchar_column("SEASON", chars=20),
+    primary_varchar_column("SEASON_TYPE"),
+)
+
+general_shooting = Table(
+    'shot_dashboard_general_shooting',
+    meta,
+    primary_varchar_column("PLAYER_ID", chars=20),
+    text_column("PLAYER_NAME_LAST_FIRST"),
+    text_column("SORT_ORDER"),
+    int_column("GP"),
+    int_column("G"),
+    primary_varchar_column("SHOT_TYPE"),
+    float_column("FGA_FREQUENCY"),
+    int_column("FGM"),
+    int_column("FGA"),
+    float_column("FG_PCT"),
+    float_column("EFG_PCT"),
+    float_column("FG2A_FREQUENCY"),
+    int_column("FG2M"),
+    int_column("FG2A"),
+    float_column("FG2_PCT"),
+    float_column("FG3A_FREQUENCY"),
+    int_column("FG3M"),
+    int_column("FG3A"),
+    float_column("FG3_PCT"),
+    primary_varchar_column("SEASON", chars=20),
+    primary_varchar_column("SEASON_TYPE"),
 )

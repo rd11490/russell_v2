@@ -21,20 +21,9 @@ def download_players_on_court_for_season(season, season_type, delta):
     else:
         game_ids = game_log['GAME_ID'].unique()
 
-    pool = mp.Pool(mp.cpu_count())
-    results = []
-
     for game_id in game_ids:
         print(game_id)
-        out = pool.apply_async(download_players_at_start_of_period, args=(game_id, season, season_type))
-        results.append(out)
-
-    pool.close()
-    pool.join()
-
-    print('WAITING FOR GETS')
-    result = [r.get() for r in results]
-    print(result)
+        download_players_at_start_of_period(game_id, season, season_type)
 
 
 def length_of_period(period):
@@ -73,6 +62,8 @@ def split_subs(df, tag):
 def download_players_at_start_of_period(game_id, season, season_type):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}' and GAME_ID = '{}'".format(season, season_type, game_id)
     frame = mysql_client.read_table(play_by_play, where_clause)
+    print('Got Data for {}'.format(game_id))
+    print(frame)
     substitutions_only = frame[frame["EVENTMSGTYPE"] == 8][
         ['PERIOD', 'EVENTNUM', 'PLAYER1_ID', 'PLAYER2_ID', 'PCTIMESTRING']]
     substitutions_only['PCTIMESTRING'] = substitutions_only.apply(convert_time_to_seconds, axis=1)
@@ -90,6 +81,7 @@ def download_players_at_start_of_period(game_id, season, season_type):
     periods = players_subbed_in_at_each_period['PERIOD'].drop_duplicates().values.tolist()
 
     frames = []
+
     for period in periods:
         low = 10 * calculate_time_at_period(period) + 5
         high = 10 * calculate_time_at_period(period + 1) - 5

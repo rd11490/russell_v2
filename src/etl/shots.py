@@ -12,7 +12,10 @@ def download_season_shots(season, season_type):
     players = mysql_client.read_table(table=player_box_score_traditional, where=where_clause)
     players = players[['PLAYER_ID', 'TEAM_ID']].drop_duplicates()
 
-    pool = mp.Pool(mp.cpu_count())
+    # for p in players.index:
+    #     download_player_shots(players, p, season, season_type)
+
+    pool = mp.Pool(3)
     results = []
 
     for p in players.index:
@@ -33,6 +36,7 @@ def download_player_shots(players, p, season, season_type):
 
     print("Downloading shots for Player: {} - Team: {}".format(player, team))
     download_and_write_shots(player_id=player, team_id=team, season=season, season_type=season_type)
+    return True
 
 
 def download_and_write_shots(player_id, team_id, season, season_type):
@@ -57,7 +61,11 @@ def fill_na(df):
 
 
 def download_player_shot_chart(player_id, team_id, season, season_type):
-    return smart.get_shot_chart_detail(player_id=player_id, team_id=team_id, season=season, season_type=season_type)
+    shots = smart.get_shot_chart_detail(player_id=player_id, team_id=team_id, season=season, season_type=season_type)
+    fouls = smart.get_foul_chart_detail(player_id=player_id, team_id=team_id, season=season, season_type=season_type)
+    print('Got shots for Player: {} - Team: {}'.format(player_id, team_id))
+
+    return shots.append(fouls)
 
 
 if __name__ == '__main__':

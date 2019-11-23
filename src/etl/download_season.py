@@ -7,6 +7,7 @@ from src.etl.play_by_play import download_play_by_play
 from src.etl.player_season_totals import download_advanced_stats, download_traditional_stats
 from src.etl.player_tracking_season_totals import download_all_tracking_stats
 from src.etl.players_on_court_per_period import download_players_on_court_for_season
+from src.etl.shooting_dashboard import download_season_shot_dashboard
 from src.etl.shots import download_season_shots
 
 from src.utils.arg_parser import *
@@ -39,6 +40,9 @@ if __name__ == '__main__':
     parser.add_argument('-sts', '--shots', action='store_true', dest='shots',
                         help='Download Shots')
 
+    parser.add_argument('-sdb', '--shot-dashboard', action='store_true', dest='shot_dashboard',
+                        help='Download Shots')
+
     args = parser.parse_args()
 
     if args.game_log or args.run_all:
@@ -58,7 +62,10 @@ if __name__ == '__main__':
 
     if args.player_tracking or args.run_all:
         print('Player Tracking Totals')
-        download_all_tracking_stats(args.season, args.season_type)
+        try:
+            download_all_tracking_stats(args.season, args.season_type)
+        except:
+            print('Failed to download tracking stats - Are they available for this season?')
 
     if args.play_by_play or args.run_all:
         print('Play by Play')
@@ -74,3 +81,7 @@ if __name__ == '__main__':
     if args.shots or args.run_all:
         print('Shots')
         download_season_shots(args.season, args.season_type)
+
+    if args.shot_dashboard or args.run_all:
+        print('Shot Dashboard')
+        download_season_shot_dashboard(args.season, args.season_type, args.delta)

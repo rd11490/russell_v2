@@ -12,26 +12,29 @@ def download_box_scores_traditional(season, season_type, delta):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}'".format(season, season_type)
     game_log = mysql_client.read_table(table=game_log_table, where=where_clause)
     if delta:
-        advanced_complete = mysql_client.read_table(team_box_score_traditional, where_clause)
+        traditional_complete = mysql_client.read_table(team_box_score_traditional, where_clause)
         log_ids = set(game_log['GAME_ID'].unique())
-        pbp_ids = set(advanced_complete['GAME_ID'].unique())
+        pbp_ids = set(traditional_complete['GAME_ID'].unique())
         game_ids = log_ids - pbp_ids
     else:
         game_ids = game_log['GAME_ID'].unique()
 
-    pool = mp.Pool(mp.cpu_count())
-    results = []
-
     for game_id in game_ids:
-        out = pool.apply_async(download_and_store_from_game_id, args=(game_id, season, season_type))
-        results.append(out)
+        download_and_store_from_game_id(game_id, season, season_type)
 
-    pool.close()
-    pool.join()
-
-    print('WAITING FOR GETS')
-    result = [r.get() for r in results]
-    print(result)
+    # pool = mp.Pool(int(mp.cpu_count()))
+    # results = []
+    #
+    # for game_id in game_ids:
+    #     out = pool.apply_async(download_and_store_from_game_id, args=(game_id, season, season_type))
+    #     results.append(out)
+    #
+    # pool.close()
+    # pool.join()
+    #
+    # print('WAITING FOR GETS')
+    # result = [r.get() for r in results]
+    # print(result)
 
 
 def download_and_store_from_game_id(game_id, season, season_type):
@@ -39,17 +42,11 @@ def download_and_store_from_game_id(game_id, season, season_type):
     box_score_data = download_box_score(game_id=game_id)
     team_stats = clean_df(add_season_and_type(box_score_data['TeamStats'], season, season_type))
     player_stats = clean_df(add_season_and_type(box_score_data['PlayerStats'], season, season_type))
-    try:
-        mysql_client.write(team_stats, table=team_box_score_traditional)
-    except:
-        print(team_stats)
-        raise Exception("Writing to DB failed!")
 
-    try:
-        mysql_client.write(player_stats, table=player_box_score_traditional)
-    except:
-        print(player_stats)
-        raise Exception("Writing to DB failed!")
+    mysql_client.write(team_stats, table=team_box_score_traditional)
+    mysql_client.write(player_stats, table=player_box_score_traditional)
+
+    return True
 
 
 def clean_df(df):

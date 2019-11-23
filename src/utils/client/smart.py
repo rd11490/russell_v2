@@ -1,4 +1,6 @@
 import datetime
+import random
+from time import sleep
 
 import pandas as pd
 import requests
@@ -251,6 +253,37 @@ class Smart:
 
         return self.api_call('leaguedashptstats', params=params)['LeagueDashPtStats']
 
+    def shooting_dashboard(self, season=None, season_type=None, player_id=None, per_mode=PerMode.Default):
+
+        if season is None:
+            season = self.default_season
+        if season_type is None:
+            season_type = self.default_season_type
+        if player_id is None:
+            raise ValueError("Must Provide a Player Id")
+
+        params = (
+            ('DateFrom', ''),
+            ('DateTo', ''),
+            ('GameSegment', ''),
+            ('LastNGames', '0'),
+            ('LeagueID', '00'),
+            ('Location', ''),
+            ('Month', '0'),
+            ('OpponentTeamID', '0'),
+            ('Outcome', ''),
+            ('PerMode', per_mode),
+            ('Period', '0'),
+            ('PlayerID', player_id),
+            ('Season', season),
+            ('SeasonSegment', ''),
+            ('SeasonType', season_type),
+            ('TeamID', '0'),
+            ('VsConference', ''),
+            ('VsDivision', ''),
+        )
+        return self.api_call('playerdashptshots', params=params)
+
     def box_score_traditional(self, game_id=None, start_period=None, end_period=None, start_range=None,
                               end_range=None, range_type=None):
         if game_id is None:
@@ -393,10 +426,24 @@ class Smart:
 
     def get_shot_chart_detail(self, player_id=None, team_id=None, game_id=None, season=None, season_type=None,
                               league_id=None):
+        return self.get_shot_chart_detail_data(player_id=player_id, team_id=team_id, game_id=game_id, season=season,
+                                               season_type=season_type,
+                                               league_id=league_id, context='FGA')
+
+    def get_foul_chart_detail(self, player_id=None, team_id=None, game_id=None, season=None, season_type=None,
+                              league_id=None):
+        return self.get_shot_chart_detail_data(player_id=player_id, team_id=team_id, game_id=game_id, season=season,
+                                               season_type=season_type,
+                                               league_id=league_id, context='PF')
+
+    def get_shot_chart_detail_data(self, player_id=None, team_id=None, game_id=None, season=None, season_type=None,
+                                   league_id=None, context=None):
 
         if player_id is None:
             raise ValueError("Must provide a Team Id")
         if team_id is None:
+            raise ValueError("Must provide a Team Id")
+        if context is None:
             raise ValueError("Must provide a Team Id")
         if season is None:
             season = self.default_season
@@ -438,7 +485,7 @@ class Smart:
             ('startRange', '0'),
             ('endRange', '2147483647'),
             ('contextFilter', ''),
-            ('contextMeasure', 'FGA'),
+            ('contextMeasure', context),
         )
 
         response = self.api_call('shotchartdetail', params=params)
@@ -449,7 +496,7 @@ class Smart:
 
     def api_call_with_retry(self, endpoint, params, headers=None, retries_left=10):
         print('Calling: "{}{}" -- retries remaining: {}'.format(self.base_url, endpoint, retries_left))
-        if retries_left>0:
+        if retries_left > 0:
             try:
                 if headers is None:
                     headers = self.headers
@@ -457,6 +504,8 @@ class Smart:
                 resp = requests.get("{}{}".format(self.base_url, endpoint), params=params, headers=headers, timeout=10)
 
                 if resp.status_code != 200:
+                    print('Non-200 status code:')
+                    print(resp.status_code)
                     print(resp.request.path_url)
                     print(resp.content)
                     raise ValueError('{} returned with the status code: {}'.format(endpoint, resp.status_code))
@@ -465,9 +514,10 @@ class Smart:
                 results = {}
                 for s in sets:
                     try:
-                        frame = pd.DataFrame(s['rowSet'])
-                        frame.columns = s['headers']
-                        results[s['name']] = frame
+                        if s['rowSet']:
+                            frame = pd.DataFrame(s['rowSet'])
+                            frame.columns = s['headers']
+                            results[s['name']] = frame
                     except:
                         print(resp.request.path_url)
                         print(s)

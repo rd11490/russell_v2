@@ -19,19 +19,21 @@ def download_box_scores_advanced(season, season_type, delta):
     else:
         game_ids = game_log['GAME_ID'].unique()
 
-    pool = mp.Pool(mp.cpu_count())
-    results = []
-
     for game_id in game_ids:
-        out = pool.apply_async(download_and_write_box_score, args=(game_id, season, season_type))
-        results.append(out)
-
-    pool.close()
-    pool.join()
-
-    print('WAITING FOR GETS')
-    result = [r.get() for r in results]
-    print(result)
+        download_and_write_box_score(game_id, season, season_type)
+    # pool = mp.Pool(int(mp.cpu_count()))
+    # results = []
+    #
+    # for game_id in game_ids:
+    #     out = pool.apply_async(download_and_write_box_score, args=(game_id, season, season_type))
+    #     results.append(out)
+    #
+    # pool.close()
+    # pool.join()
+    #
+    # print('WAITING FOR GETS')
+    # result = [r.get() for r in results]
+    # print(result)
 
 
 def clean_df(df):
@@ -55,17 +57,10 @@ def download_and_write_box_score(game_id, season, season_type):
     box_score_data = download_box_score(game_id=game_id)
     team_stats = clean_df(add_season_and_type(box_score_data['TeamStats'], season, season_type))
     player_stats = clean_df(add_season_and_type(box_score_data['PlayerStats'], season, season_type))
-    try:
-        mysql_client.write(team_stats, table=team_box_score_advanced)
-    except:
-        print(team_stats)
-        raise Exception("Writing to DB failed!")
 
-    try:
-        mysql_client.write(player_stats, table=player_box_score_advanced)
-    except:
-        print(player_stats)
-        raise Exception("Writing to DB failed!")
+    mysql_client.write(team_stats, table=team_box_score_advanced)
+    mysql_client.write(player_stats, table=player_box_score_advanced)
+
     return True
 
 
