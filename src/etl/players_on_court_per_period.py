@@ -63,7 +63,6 @@ def download_players_at_start_of_period(game_id, season, season_type):
     where_clause = "SEASON = '{}' and SEASON_TYPE = '{}' and GAME_ID = '{}'".format(season, season_type, game_id)
     frame = mysql_client.read_table(play_by_play, where_clause)
     print('Got Data for {}'.format(game_id))
-    print(frame)
     substitutions_only = frame[frame["EVENTMSGTYPE"] == 8][
         ['PERIOD', 'EVENTNUM', 'PLAYER1_ID', 'PLAYER2_ID', 'PCTIMESTRING']]
     substitutions_only['PCTIMESTRING'] = substitutions_only.apply(convert_time_to_seconds, axis=1)
@@ -97,6 +96,7 @@ def download_players_at_start_of_period(game_id, season, season_type):
             ['PLAYER_NAME', 'PLAYER_ID', 'TEAM_ID', 'PERIOD']]
 
         if joined_players.shape[0] != 10:
+            print(game_id)
             print(players_subbed_in_at_period)
             print(boxscore_players)
             print(joined_players)

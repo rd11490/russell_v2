@@ -1,10 +1,11 @@
 import argparse
+import multiprocessing as mp
+import numpy as np
 
 from src.utils.arg_parser import *
 from src.utils.client import smart
 from src.utils.storage import *
 from src.utils.utils import *
-import multiprocessing as mp
 
 
 def download_season_shots(season, season_type):
@@ -12,22 +13,30 @@ def download_season_shots(season, season_type):
     players = mysql_client.read_table(table=player_box_score_traditional, where=where_clause)
     players = players[['PLAYER_ID', 'TEAM_ID']].drop_duplicates()
 
-    # for p in players.index:
-    #     download_player_shots(players, p, season, season_type)
-
-    pool = mp.Pool(3)
-    results = []
-
     for p in players.index:
-        out = pool.apply_async(download_player_shots, args=(players, p, season, season_type))
-        results.append(out)
+        download_player_shots(players, p, season, season_type)
 
-    pool.close()
-    pool.join()
+    # cores = mp.cpu_count()
+    # pool = mp.Pool(cores)
+    # index_chunked = np.array_split(players.index, cores)
+    # results = []
+    #
+    # for p_arr in index_chunked:
+    #     out = pool.apply_async(download_player_group_shots, args=(players, p_arr, season, season_type))
+    #     results.append(out)
+    #
+    # pool.close()
+    # pool.join()
+    #
+    # print('WAITING FOR GETS')
+    # result = [r.get() for r in results]
+    # print(result)
 
-    print('WAITING FOR GETS')
-    result = [r.get() for r in results]
-    print(result)
+
+def download_player_group_shots(players, p_arr, season, season_type):
+    for p in p_arr:
+        download_player_shots(players, p, season, season_type)
+    return True
 
 
 def download_player_shots(players, p, season, season_type):
@@ -36,7 +45,6 @@ def download_player_shots(players, p, season, season_type):
 
     print("Downloading shots for Player: {} - Team: {}".format(player, team))
     download_and_write_shots(player_id=player, team_id=team, season=season, season_type=season_type)
-    return True
 
 
 def download_and_write_shots(player_id, team_id, season, season_type):

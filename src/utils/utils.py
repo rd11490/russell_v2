@@ -40,3 +40,4 @@ def extract_season_type_from_game_id(gameid):
         return SeasonType.RegularSeason
     elif season_type_ind == '4':
         return SeasonType.Playoffs
+
