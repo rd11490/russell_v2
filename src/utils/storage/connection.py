@@ -49,6 +49,13 @@ class MySqlClient:
         :param df: Dataframe to write
         :param table: SqlAlchemy Table object
         """
+        table_cols = [column.key for column in table.columns]
+        df_cols = df.columns
+
+        cols = list(set(table_cols) & set(df_cols))
+
+        df = df[cols]
+
         on_duplicate_key_stmt = Upsert(table, df.to_dict('records'))
         self.__engine.execute(on_duplicate_key_stmt)
 

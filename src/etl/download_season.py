@@ -9,6 +9,7 @@ from src.etl.player_tracking_season_totals import download_all_tracking_stats
 from src.etl.players_on_court_per_period import download_players_on_court_for_season
 from src.etl.shooting_dashboard import download_season_shot_dashboard
 from src.etl.shots import download_season_shots
+from src.etl.defensive_matchups import download_matchups
 
 from src.utils.arg_parser import *
 
@@ -42,6 +43,9 @@ if __name__ == '__main__':
 
     parser.add_argument('-sdb', '--shot-dashboard', action='store_true', dest='shot_dashboard',
                         help='Download Shots')
+
+    parser.add_argument('-dmt', '--defensive-matchups', action='store_true', dest='matchups',
+                        help='Download matchup data')
 
     args = parser.parse_args()
 
@@ -85,3 +89,7 @@ if __name__ == '__main__':
     if args.shot_dashboard or args.run_all:
         print('Shot Dashboard')
         download_season_shot_dashboard(args.season, args.season_type, args.delta)
+
+    if args.matchups or args.run_all:
+        print('Defensive Matchups')
+        download_matchups(args.season, args.season_type)

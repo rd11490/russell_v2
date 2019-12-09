@@ -83,17 +83,18 @@ class PtMeasureType:
     PostTouches = 'PostTouch'
     PaintTouches = 'PaintTouch'
 
+
 headers = {
-            'Host': 'stats.nba.com',
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
-            'Referer': 'stats.nba.com',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        }
+    'Host': 'stats.nba.com',
+    'Connection': 'keep-alive',
+    'Cache-Control': 'max-age=0',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
+    'Referer': 'stats.nba.com',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+}
 
 
 class Smart:
@@ -348,6 +349,40 @@ class Smart:
 
         return self.api_call('boxscoreadvancedv2', params=params)
 
+    def get_season_traditional_box_score(self, season=None, season_type=None):
+        return self.__get_season_box_scores(season, season_type, MeasureType.Base)
+
+    def get_season_advanced_box_score(self, season=None, season_type=None):
+        return self.__get_season_box_scores(season, season_type, MeasureType.Advanced)
+
+    def __get_season_box_scores(self, season=None, season_type=None, measure_type=None):
+        params = (
+            ('DateFrom', ''),
+            ('DateTo', ''),
+            ('GameSegment', ''),
+            ('LastNGames', '0'),
+            ('LeagueID', '00'),
+            ('Location', ''),
+            ('MeasureType', measure_type),
+            ('Month', '0'),
+            ('OpponentTeamID', '0'),
+            ('Outcome', ''),
+            ('PORound', '0'),
+            ('PaceAdjust', 'N'),
+            ('PerMode', 'Totals'),
+            ('Period', '0'),
+            ('PlusMinus', 'N'),
+            ('Rank', 'N'),
+            ('Season', season),
+            ('SeasonSegment', ''),
+            ('SeasonType', season_type),
+            ('ShotClockRange', ''),
+            ('VsConference', ''),
+            ('VsDivision', ''),
+        )
+
+        return self.api_call('playergamelogs', params=params)['PlayerGameLogs']
+
     def win_probability(self, game_id=None):
         if game_id is None:
             raise ValueError("Must provide a Game Id")
@@ -358,14 +393,14 @@ class Smart:
         return self.api_call('winprobabilitypbp', params=params)
 
     def get_player_game_log(self, season_type=SeasonType.Default, season=None, league_id=None, date_to=None,
-                            date_from=None):
+                            date_from=None, measure_type=None):
         return self.__get_league_game_log(player_or_team='P', season_type=season_type, season=season,
-                                          league_id=league_id, date_to=date_to, date_from=date_from)
+                                          league_id=league_id, date_to=date_to, date_from=date_from, measure_type=measure_type)
 
     def get_teams_game_log(self, season_type=SeasonType.Default, season=None, league_id=None, date_to=None,
-                           date_from=None):
+                           date_from=None, measure_type=None):
         return self.__get_league_game_log(player_or_team='T', season_type=season_type, season=season,
-                                          league_id=league_id, date_to=date_to, date_from=date_from)
+                                          league_id=league_id, date_to=date_to, date_from=date_from, measure_type=measure_type)
 
     def play_by_play(self, game_id=None, start_period=None, end_period=None):
         if game_id is None:
@@ -385,7 +420,7 @@ class Smart:
 
     def __get_league_game_log(self, player_or_team=None, season_type=SeasonType.Default, season=None, league_id=None,
                               date_to=None,
-                              date_from=None):
+                              date_from=None, measure_type=None):
         if player_or_team is None:
             raise ValueError("Must provide a Team Id")
         if season is None:
@@ -396,6 +431,8 @@ class Smart:
             date_to = ''
         if date_from is None:
             date_from = ''
+        if measure_type is None:
+            measure_type = MeasureType.Base
 
         params = (
             ('DateFrom', date_from),
@@ -405,36 +442,35 @@ class Smart:
             ('SeasonType', season_type),
             ('playerOrTeam', player_or_team),
             ('sorter', 'DATE'),
-            ('direction', 'ASC')
+            ('direction', 'ASC'),
+            ('MeasureType', measure_type),
+
         )
 
         resp = self.api_call('leaguegamelog', params)
         return resp['LeagueGameLog']
 
-    def get_team_game_log(self, team_id=None, season_type=None, season=None, league_id=None, date_to=None,
-                          date_from=None):
-        if team_id is None:
-            raise ValueError("Must provide a Team Id")
+    def get_defensive_matchups(self, season=None, season_type=None):
         if season is None:
             season = self.default_season
-        if league_id is None:
-            league_id = self.default_league
-        if date_to is None:
-            date_to = ''
-        if date_from is None:
-            date_from = ''
+        if season_type is None:
+            season_type = self.default_season
 
         params = (
-            ('DateFrom', date_from),
-            ('DateTo', date_to),
-            ('LeagueID', league_id),
+            ('DateFrom', ''),
+            ('DateTo', ''),
+            ('DefPlayerID', ''),
+            ('OffPlayerID', ''),
+            ('LeagueID', '00'),
+            ('Outcome', ''),
+            ('PORound', '0'),
+            ('PerMode', 'Totals'),
             ('Season', season),
             ('SeasonType', season_type),
-            ('TeamID', team_id)
         )
 
-        resp = self.api_call('teamgamelog', params)
-        return resp['TeamGameLog']
+        response = self.api_call('leagueseasonmatchups', params=params, timeout=45)
+        return response['SeasonMatchups']
 
     def get_shot_chart_detail(self, player_id=None, team_id=None, game_id=None, season=None, season_type=None,
                               league_id=None):
@@ -503,16 +539,17 @@ class Smart:
         response = self.api_call('shotchartdetail', params=params)
         return response['Shot_Chart_Detail']
 
-    def api_call(self, endpoint, params, headers=None):
-        return self.api_call_with_retry(endpoint, params, headers, 10)
+    def api_call(self, endpoint, params, headers=None, timeout=10, retries=10):
+        return self.api_call_with_retry(endpoint, params, headers, timeout, retries)
 
-    def api_call_with_retry(self, endpoint, params, headers=None, retries_left=10):
+    def api_call_with_retry(self, endpoint, params, headers=None, timeout=10, retries_left=10):
         print('Calling: "{}{} - {}" -- retries remaining: {}'.format(self.base_url, endpoint, params, retries_left))
         if retries_left > 0:
             try:
                 if headers is None:
                     headers = self.headers
-                resp = requests.get("{}{}".format(self.base_url, endpoint), params=params, headers=headers, timeout=10)
+                resp = requests.get("{}{}".format(self.base_url, endpoint), params=params, headers=headers,
+                                    timeout=timeout)
                 if resp.status_code != 200:
                     print('Non-200 status code:')
                     print(resp.status_code)
