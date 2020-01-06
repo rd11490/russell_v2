@@ -16,6 +16,8 @@ def isHomeOrAway(value):
 
 
 def convert_to_player_array(group):
+    if group.shape[0] < 10:
+        print(group)
     home_players = np.sort(group[group['HOME'] == True]['PLAYER_ID'].values)
     home_team = group[group['HOME'] == True]['TEAM_ID'].values[0]
 
@@ -58,7 +60,7 @@ def play_by_play_with_players(season, season_type):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Download season stats')
+    parser = argparse.ArgumentParser(description='Play by pla with players')
     season_arg(parser)
     season_type_arg(parser)
     game_id_arg(parser)

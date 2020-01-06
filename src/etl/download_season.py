@@ -55,9 +55,9 @@ if __name__ == '__main__':
 
     if args.box_scores or args.run_all:
         print('Box Scores - Traditional')
-        download_box_scores_traditional(args.season, args.season_type, args.delta)
+        download_box_scores_traditional(args.season, args.season_type)
         print('Box Scores - Advanced')
-        download_box_scores_advanced(args.season, args.season_type, args.delta)
+        download_box_scores_advanced(args.season, args.season_type)
 
     if args.totals or args.run_all:
         print('Season Totals')
